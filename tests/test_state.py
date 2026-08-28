@@ -103,3 +103,22 @@ class TestState(unittest.TestCase):
         self.assertEqual(state.pending, set())
         # Ensure pending is not corrupted to string items.
         self.assertNotIn("1", state.pending)
+
+    def test_top_level_array_gives_empty_state(self):
+        # Top-level JSON array (not object) must degrade, not crash on .get().
+        self.path.write_text('[1, 2, 3]')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+
+    def test_top_level_scalar_gives_empty_state(self):
+        # Top-level JSON scalar (number or string, not object) must degrade.
+        self.path.write_text('42')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+        # Also test with string scalar.
+        self.path.write_text('"not a state file"')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())

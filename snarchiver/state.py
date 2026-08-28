@@ -35,6 +35,10 @@ def load_state(path) -> State:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
 
+        # State file must be a JSON object (dict), not array or scalar.
+        if not isinstance(data, dict):
+            raise ValueError(f"state file must be object, got {type(data).__name__}")
+
         # Validate last_complete is an integer.
         last_complete = data.get("last_complete", 0)
         if not isinstance(last_complete, int):
