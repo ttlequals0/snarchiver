@@ -14,7 +14,7 @@ GRC_BASE = "https://www.grc.com/"
 
 _BLOCK_RE = re.compile(r'<a name="(\d+)"></a>(.*?)(?=<a name="\d+"></a>|\Z)', re.S)
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
-_META_RE = re.compile(r"Episode&nbsp;#(\d+)\s*\|\s*([^|<]+?)\s*\|")
+_META_RE = re.compile(r"Episode&nbsp;#(\d+)\s*\|\s*([^|<]+?)\s*(?:\||<)")
 _TITLE_RE = re.compile(r"<b>(.*?)</b>", re.S)
 _AUDIO_RE = re.compile(r"https://media\.grc\.com/sn/sn-\d+\.mp3")
 _NOTES_RE = re.compile(r'href="([^"]*notes[^"]*)"')

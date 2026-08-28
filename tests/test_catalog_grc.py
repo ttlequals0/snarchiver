@@ -17,6 +17,7 @@ class TestParseListingPage(unittest.TestCase):
         cls.current = {e.number: e for e in parse_listing_page(load("grc-current.htm"))}
         cls.y2005 = {e.number: e for e in parse_listing_page(load("grc-2005.htm"))}
         cls.y2022 = {e.number: e for e in parse_listing_page(load("grc-2022.htm"))}
+        cls.y2016 = {e.number: e for e in parse_listing_page(load("grc-2016.htm"))}
 
     def test_current_page_episode_range(self):
         self.assertEqual(min(self.current), 1059)
@@ -79,3 +80,21 @@ class TestParseListingPage(unittest.TestCase):
 
     def test_source_marked_grc(self):
         self.assertEqual(self.y2005[1].source, "grc")
+
+    def test_episode_with_no_duration_field_still_parses(self):
+        # ep 592's meta line has only one pipe: "Episode #592 | 27 Dec 2016 "
+        self.assertIn(592, self.y2016)
+        episode = self.y2016[592]
+        self.assertEqual(episode.air_date, datetime.date(2016, 12, 27))
+        self.assertTrue(episode.title)
+        self.assertTrue(episode.description.strip())
+
+    def test_episode_with_no_duration_field_is_incomplete(self):
+        # ep 592's block has no audio href at all, so it must not be marked complete
+        self.assertFalse(self.y2016[592].is_complete)
+
+    def test_neighbouring_normal_episode_still_parses(self):
+        # ep 591 has the usual two-pipe form with a duration; the relaxed
+        # pattern must not change its result
+        self.assertEqual(self.y2016[591].air_date, datetime.date(2016, 12, 20))
+        self.assertEqual(self.y2016[591].title, "Law Meets Internet")
