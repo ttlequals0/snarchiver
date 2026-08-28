@@ -4,16 +4,26 @@ Archives the Security Now podcast from grc.com into a directory
 [MinusPod](https://github.com/ttlequals0/MinusPod) can bulk-import as a local
 feed, preserving each episode's real air date.
 
-Python 3.11+, standard library only. `pdfimages` (poppler) is optional and used
-only for artwork.
+Python 3.11+, standard library only -- no runtime dependencies. `pdfimages`
+(poppler) is optional and used only for artwork.
+
+Run it with [uv](https://docs.astral.sh/uv/), which pins the interpreter so
+every run is identical:
+
+    uv run snarchiver --help
+
+uv is configured with `python-preference = "only-managed"`, so it always uses
+an interpreter it manages rather than whichever `python3` happens to be on
+PATH. That matters: a discovered interpreter may lack a CA bundle, and every
+HTTPS fetch then fails with `CERTIFICATE_VERIFY_FAILED`.
 
 ## Usage
 
-    python3 -m snarchiver --from 1 --out /srv/minuspod/import/security-now
+    uv run snarchiver --from 1 --out /srv/minuspod/import/security-now
 
 Later runs need no arguments; the state file resumes where the last one stopped:
 
-    python3 -m snarchiver --out /srv/minuspod/import/security-now
+    uv run snarchiver --out /srv/minuspod/import/security-now
 
 | Flag | Meaning |
 |---|---|
@@ -27,9 +37,11 @@ Later runs need no arguments; the state file resumes where the last one stopped:
 | `--force` | Re-download episodes already on disk |
 | `-v`, `--verbose` | Debug-level logging |
 
-Requires a Python 3.11+ interpreter with a working SSL trust store. A broken
-store surfaces as `CERTIFICATE_VERIFY_FAILED` on every fetch; point `python3`
-at an interpreter with valid certificates (e.g. Homebrew's) if you see it.
+Requires a Python 3.11+ interpreter with a working SSL trust store. Running
+through `uv run` handles this: uv's managed interpreters ship with a usable
+trust store. If you invoke a system interpreter directly and see
+`CERTIFICATE_VERIFY_FAILED`, that interpreter has no CA bundle -- either use
+`uv run`, or point it at one with `SSL_CERT_FILE=/etc/ssl/cert.pem`.
 
 ## Output
 
@@ -57,6 +69,6 @@ or two of wall clock. It is safely stoppable and resumable.
 
 ## Tests
 
-    python3 -m unittest discover -s tests -v
+    uv run python -m unittest discover -s tests -v
 
 No test touches the network; all parsing runs against frozen fixtures.
