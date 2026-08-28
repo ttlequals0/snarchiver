@@ -153,7 +153,8 @@ class CatalogResult:
         return not self.failed_pages
 
 
-def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> CatalogResult:
+def build_catalog(*, fetch=download.get_text, twit_lookup=None,
+                  probe=download.head_exists) -> CatalogResult:
     if twit_lookup is None:
         twit_lookup = set(KNOWN_GAPS)
 
@@ -168,6 +169,23 @@ def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> CatalogResult
             continue
         for episode in parse_listing_page(page):
             catalog.setdefault(episode.number, episode)
+
+    # grc.com publishes audio before un-commenting its listing links, so a
+    # complete listing entry with no href may still have the file live.
+    # Verify before adopting: a constructed URL must never be trusted blind
+    # (see sn-436-notes.pdf, an orphan holding episode 437's notes).
+    for episode in catalog.values():
+        if episode.audio_url or not episode.title or not episode.description:
+            continue
+        candidate = grc_audio_url(episode.number)
+        try:
+            found = probe(candidate)
+        except Exception as exc:
+            logger.warning("ep %d: audio probe failed: %s", episode.number, exc)
+            continue
+        if found:
+            episode.audio_url = candidate
+            logger.info("ep %d: recovered via audio probe", episode.number)
 
     for number in sorted(twit_lookup - set(catalog)):
         try:

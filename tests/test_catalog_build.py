@@ -71,13 +71,13 @@ class TestBuildCatalog(unittest.TestCase):
         return "<html></html>"
 
     def test_merges_pages_into_one_catalog(self):
-        result = build_catalog(fetch=self.fetch, twit_lookup=set())
+        result = build_catalog(fetch=self.fetch, twit_lookup=set(), probe=lambda url: False)
         self.assertIn(1, result.episodes)
         self.assertIn(885, result.episodes)
         self.assertIn(1093, result.episodes)
 
     def test_fully_successful_fetch_is_complete(self):
-        result = build_catalog(fetch=self.fetch, twit_lookup=set())
+        result = build_catalog(fetch=self.fetch, twit_lookup=set(), probe=lambda url: False)
         self.assertTrue(result.complete)
         self.assertEqual(result.failed_pages, [])
 
@@ -85,12 +85,12 @@ class TestBuildCatalog(unittest.TestCase):
         self.assertEqual(KNOWN_GAPS, {436, 540, 643, 1058})
 
     def test_twit_fallback_fills_a_gap(self):
-        result = build_catalog(fetch=self.fetch, twit_lookup={436})
+        result = build_catalog(fetch=self.fetch, twit_lookup={436}, probe=lambda url: False)
         self.assertIn(436, result.episodes)
         self.assertEqual(result.episodes[436].source, "twit")
 
     def test_twit_not_consulted_when_grc_has_the_episode(self):
-        build_catalog(fetch=self.fetch, twit_lookup={885})
+        build_catalog(fetch=self.fetch, twit_lookup={885}, probe=lambda url: False)
         self.assertNotIn("https://twit.tv/shows/security-now/episodes/885",
                          self.fetched)
 
@@ -100,7 +100,7 @@ class TestBuildCatalog(unittest.TestCase):
                 raise OSError("unreachable")
             return self.fetch(url, **kwargs)
 
-        result = build_catalog(fetch=flaky, twit_lookup=set())
+        result = build_catalog(fetch=flaky, twit_lookup=set(), probe=lambda url: False)
         self.assertIn(1093, result.episodes)
         self.assertNotIn(1, result.episodes)
 
@@ -110,7 +110,7 @@ class TestBuildCatalog(unittest.TestCase):
                 raise OSError("unreachable")
             return self.fetch(url, **kwargs)
 
-        result = build_catalog(fetch=flaky, twit_lookup=set())
+        result = build_catalog(fetch=flaky, twit_lookup=set(), probe=lambda url: False)
         self.assertFalse(result.complete)
         self.assertIn("https://www.grc.com/sn/past/2005.htm", result.failed_pages)
 
@@ -120,7 +120,83 @@ class TestBuildCatalog(unittest.TestCase):
                 raise OSError("unreachable")
             return self.fetch(url, **kwargs)
 
-        result = build_catalog(fetch=flaky, twit_lookup={436})
+        result = build_catalog(fetch=flaky, twit_lookup={436}, probe=lambda url: False)
         self.assertFalse(result.complete)
         self.assertIn("https://twit.tv/shows/security-now/episodes/436",
                       result.failed_pages)
+
+
+class TestAudioProbe(unittest.TestCase):
+    """ep 592: metadata present, no audio href on the listing page at all."""
+
+    def setUp(self):
+        self.pages = {
+            "https://www.grc.com/securitynow.htm": "grc-current.htm",
+            "https://www.grc.com/sn/past/2016.htm": "grc-2016.htm",
+        }
+
+    def fetch(self, url, **kwargs):
+        name = self.pages.get(url)
+        if name:
+            return (FIXTURES / name).read_text(encoding="utf-8", errors="replace")
+        return "<html></html>"
+
+    def test_probe_recovers_episode_with_metadata_and_no_audio(self):
+        probed = []
+
+        def probe(url):
+            probed.append(url)
+            return True
+
+        result = build_catalog(fetch=self.fetch, twit_lookup=set(), probe=probe)
+        episode = result.episodes[592]
+        self.assertEqual(episode.audio_url, "https://media.grc.com/sn/sn-592.mp3")
+        self.assertTrue(episode.is_complete)
+        self.assertIn("https://media.grc.com/sn/sn-592.mp3", probed)
+
+    def test_failed_probe_leaves_episode_incomplete(self):
+        result = build_catalog(fetch=self.fetch, twit_lookup=set(),
+                               probe=lambda url: False)
+        episode = result.episodes[592]
+        self.assertIsNone(episode.audio_url)
+        self.assertFalse(episode.is_complete)
+
+    def test_episode_with_audio_href_is_never_probed(self):
+        probed = []
+
+        def probe(url):
+            probed.append(url)
+            return True
+
+        build_catalog(fetch=self.fetch, twit_lookup=set(), probe=probe)
+        self.assertNotIn("https://media.grc.com/sn/sn-591.mp3", probed)
+
+    def test_episode_without_description_is_never_probed(self):
+        block = ('<a name="999"></a>Episode&nbsp;#999 | 01 Jan 2020 |'
+                '<b>Test Title</b></td>'
+                '</table></td></tr></table></td></tr></table>')
+        pages = {"https://www.grc.com/securitynow.htm": block}
+
+        def fetch(url, **kwargs):
+            return pages.get(url, "<html></html>")
+
+        probed = []
+
+        def probe(url):
+            probed.append(url)
+            return True
+
+        result = build_catalog(fetch=fetch, twit_lookup=set(), probe=probe)
+        episode = result.episodes[999]
+        self.assertEqual(episode.description, "")
+        self.assertIsNone(episode.audio_url)
+        self.assertEqual(probed, [])
+
+    def test_probe_that_raises_leaves_episode_incomplete(self):
+        def probe(url):
+            raise OSError("boom")
+
+        result = build_catalog(fetch=self.fetch, twit_lookup=set(), probe=probe)
+        episode = result.episodes[592]
+        self.assertIsNone(episode.audio_url)
+        self.assertFalse(episode.is_complete)
