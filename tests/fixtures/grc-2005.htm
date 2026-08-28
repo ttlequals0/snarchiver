@@ -1,0 +1,476 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head><title>GRC&nbsp;|&nbsp;Security Now! Episode Archive&nbsp;&nbsp;</title>
+<!-- ChangeDetection.com id=198mgjwxkml comment=" " detection="off" -->
+<meta name="author" content="Steve Gibson, GIBSON RESEARCH CORPORATION" />
+<meta name="keywords" content="Security Now!, weekly security audio column, steve gibson, internet security podcast, mp3 podcast, SockStress TCP Socket Stress and Exploitation, Denial of Service" />
+<meta name="description" content="Security Now! Weekly Internet Security Podcast. This week describing the newly revealed SockStress TCP stack vulnerabilities." />
+<meta name="sitemenu" content="" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="pics-label" content='(pics-1.1 "http://www.rsac.org/ratingsv01.html" l gen true comment "RSACi North America Server" by "offices_@_grc.com" for "https://www.grc.com" on "1998.03.30T21:20-0800" r (n 0 s 0 v 0 l 0))' />
+<meta http-equiv="pics-label" content='(pics-1.1 "http://www.icra.org/ratingsv02.html" l gen true for "https://www.grc.com" r (cz 1 lz 1 nz 1 oz 1 vz 1) "http://www.rsac.org/ratingsv01.html" l gen true for "https://www.grc.com" r (n 0 s 0 v 0 l 0))' />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="icon" sizes="76x76" type="image/png" href="/apple-touch-icon.png" />
+<link rel="icon" sizes="32x32" type="image/png" href="/favicon-32x32.png" />
+<link rel="icon" sizes="16x16" type="image/png" href="/favicon-16x16.png" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="meta" href="labels.rdf" type="application/rdf+xml" title="ICRA labels" />
+<link rel="stylesheet" media="all" type="text/css" href="/grc.css?3" />
+<link rel="stylesheet" media="all" type="text/css" href="/search.css" />
+<link rel="stylesheet" media="all" type="text/css" href="/mainmenu.css?2" />
+<link rel="stylesheet" media="all" type="text/css" href="/webfonts.css" />
+
+</head><body link="#CC0000" vlink="#006666" alink="#FF0000"><a name="top"></a>
+<!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-GS3MK15LN5"></script><script>  window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  gtag('js', new Date());  gtag('config', 'G-GS3MK15LN5');</script>
+
+<!-- ########################## GRC Masthead Menu ########################## -->
+<div class="menuminwidth0"><div class="menuminwidth1"><div class="menuminwidth2">
+<div id="masthead">
+	<a href="/default.htm"><img id="mastheadlogo" src="/mh-logo.gif" width="286" height="24" alt="Gibson Research Corporation" title="" /></a>
+	<img id="focus" src="/mh-focus.gif" width="121" height="13" alt="" title="What we're about" />
+	<a href="/mail.htm"><img id="email" src="/image/email-subscriptions.png" width="179" height="22" alt="email subscriptions" title=" User-managed email subscriptions " /></a>
+</div>
+
+<script async src="https://cse.google.com/cse.js?cx=000064552291181981813:y8yi5go2xza"></script>
+<div id="search" class="gcse-search"></div>
+
+<div class="menu">
+
+<ul>
+	<li><a href="/default.htm"><img src="/mb-home.gif" width="76" height="18" alt="[Home]" title="" />
+		<ul class="leftbutton">
+			<li><a href="/purchasing.htm">&nbsp;Purchasing</a></li>
+			<li><a href="/sales.htm">&nbsp;Sales Support</a></li>
+			<li><a href="/support.htm">&nbsp;Technical Support</a></li>
+			<li><a href="/mail.htm">&nbsp;Email Subscriptions</a></li>
+			<li><a href="/default.htm#bottom">&nbsp;Contact Us</a></li>
+			<li><a href="https://forums.grc.com">&nbsp;GRC Web Forums</a></li>
+			<li><a href="/privacy.htm">&nbsp;Privacy Policy</a></li>
+			<li><a href="/stevegibson.htm">&nbsp;Steve's Projects Page</a></li>
+			<li><a href="/resume.htm">&nbsp;Steve's Old Resume</a></li>
+		</ul>
+	</li>
+</ul>
+
+<ul>
+	<li><a href=""><img src="/mb_products.gif" width="96" height="18" alt="[Products]" title="" />
+		<ul>
+			<li><a href="/dns/benchmark.htm">&nbsp;DNS Benchmark</a></li>
+			<li><a href="/sr/spinrite.htm">&nbsp;SpinRite (v6.1)</a></li>
+			<li><a href="/upgrade.htm">&nbsp;Upgrade to v6.1</a></li>
+		</ul>
+	</li>
+</ul>
+			
+<ul>
+	<li><a href="/x/ne.dll?bh0bkyd2"><img src="/mb-services.gif" width="94" height="18" alt="[Services]" title="" />
+		<ul>
+			<li><a href="/x/ne.dll?bh0bkyd2">&nbsp;ShieldsUP!</a></li>
+			<li><a href="/revocation.htm">&nbsp;Certificate Revocation</a></li>
+			<li><a href="/haystack.htm">&nbsp;Password Haystacks</a></li>
+			<li><a href="/fingerprints.htm">&nbsp;HTTPS Fingerprints</a></li>			
+			<li><a href="/securitynow.htm">&nbsp;Security Now!</a></li>
+			<li><a href="/dns/dns.htm">&nbsp;DNS Spoofability Test</a></li>
+			<li><a href="/passwords.htm">&nbsp;Perfect Passwords</a></li>
+			<li><a href="/ppp.htm">&nbsp;PPP Passwords</a></li>
+			<li><a href="/media.htm">&nbsp;Tech TV video clips</a></li>
+			<li><a href="/discussions.htm">&nbsp;Newsgroup Discussions</a></li>
+		</ul>
+	</li>
+</ul>
+
+<ul>
+	<li><a href="/freepopular.htm"><img src="/mb-freeware.gif" width="98" height="18" alt="[Freeware]" title="" />
+		<ul class="skinny">
+			<li><a href=""><span class="drop"><span>Security</span>&raquo;</span>
+				<ul>
+					<li><a href="/inspectre.htm">&nbsp;InSpectre</a></li>
+					<li><a href="/securable.htm">&nbsp;Securable</a></li>
+					<li><a href="/isbootsecure.htm">&nbsp;IsBootSecure</a></li>
+					<li><a href="/lt/leaktest.htm">&nbsp;Leaktest</a></li>
+					<li><a href="/stm/shootthemessenger.htm">&nbsp;Shoot the messenger</a></li>
+					<li><a href="/unpnp/unpnp.htm">&nbsp;Unplug n' Pray</a></li>
+					<li><a href="/freeware/dcom.htm">&nbsp;DCOMbobulator</a></li>
+					<li><a href="/wmf/wmf.htm">&nbsp;MouseTrap</a></li>
+					<li><a href="/wmf/wmf.htm">&nbsp;MouseTrapCmd</a></li>
+				</ul>
+			</li>
+	
+			<li><a href=""><span class="drop"><span>Utilities</span>&raquo;</span>
+				<ul>
+					<li><a href="/bootable.htm">&nbsp;BootAble</a></li>
+					<li><a href="/validrive.htm">&nbsp;ValiDrive</a></li>
+					<li><a href="/incontrol.htm">&nbsp;<b>In</b>Control</a></li>
+					<li><a href="/readspeed.htm">&nbsp;ReadSpeed</a></li>
+					<li><a href="/dns/benchmark.htm">&nbsp;DNS Benchmark</a></li>
+					<li><a href="/initdisk.htm">&nbsp;InitDisk</a></li>
+					<li><a href="/never10.htm">&nbsp;Never 10&nbsp;&nbsp;(no upgrade)</a></li>
+					<li><a href="/wizmo/wizmo.htm">&nbsp;Wizmo</a></li>
+					<li><a href="/id/idserve.htm">&nbsp;ID Serve</a></li>
+					<li><a href="/freeware/clickey.htm">&nbsp;ClicKey</a></li>
+					<li><a href="/ct/cleartype.htm">&nbsp;Free &amp; Clear</a></li>
+					<li><a href="/tip/id.htm">&nbsp;IDentity (ASPI)</a></li>
+				</ul>
+			</li>
+	
+			<li><a href=""><span class="drop"><span>Obsolete</span>&raquo;</span>
+				<ul>
+					<li><a href="/cih/cih.htm">&nbsp;FIX-CIH</a></li>
+					<li><a href="/tip/clickdeath.htm">&nbsp;TIP (trouble in paradise)</a></li>
+					<li><a href="/oo-update.htm">&nbsp;OptOut</a></li>
+					<li><a href="/xpdite/xpdite.htm">&nbsp;XPdite</a></li>
+					<li><a href="/faq-shieldsup.htm">&nbsp;NoShare</a></li>
+					<li><a href="/faq-shieldsup.htm">&nbsp;LetShare</a></li>
+					<li><a href="/pw/patchwork.htm">&nbsp;Patchwork</a></li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+</ul>
+
+<ul>
+	<li><a href=""><img src="/mb-research.gif" width="98" height="18" alt="[Research]" title="" />
+		<ul class="skinny">
+			<li><a href=""><span class="drop"><span>General</span>&raquo;</span>
+				<ul>
+					<li><a href="/malware.htm">&nbsp;Malware Repository</a></li>
+					<li><a href="/sqrl/sqrl.htm">&nbsp;SQRL&nbsp;Login&nbsp;Technology</a></li>					
+					<li><a href="/ssl/ev.htm">&nbsp;EV SSL/TLS Certificates</a></li>
+					<li><a href="/otg/uheprng.htm">&nbsp;Ultra-high entropy PRNG</a></li>
+					<li><a href="/menudemo.htm">&nbsp;Pure CSS web menus</a></li>
+					<li><a href="/nat/nat.htm">&nbsp;NAT router security</a></li>
+					<li><a href="/pda/palmpower.htm">&nbsp;PDA max battery life</a></li>
+				</ul>
+			</li>
+	
+			<li><a href=""><span class="drop"><span>Pending</span>&raquo;</span>
+				<ul>
+					<li><a href="/nf/netfilter.htm">&nbsp;GRC NetFilter</a></li>
+					<li><a href="/tp/trustpuppy.htm">&nbsp;TrustPuppy</a></li>
+				</ul>
+			</li>
+	
+			<li><a href=""><span class="drop"><span>Historical</span>&raquo;</span>
+				<ul>
+					<li><a href="/worms/25-01-03.htm">&nbsp;Worm wars of 2001</a></li>
+					<li><a href="/downloaders.htm">&nbsp;File downloader spying</a></li>
+					<li><a href="/ct/ctwhat.htm">&nbsp;Sub-pixel font rendering</a></li>
+					<li><a href="/su/earthlink.htm">&nbsp;Earthlink browser tag</a></li>
+					<li><a href="/tip/codfaq1.htm">&nbsp;ZIP &amp; JAZ click of death</a></li>
+				</ul>
+			</li>
+	
+			<li><a href=""><span class="drop"><span>Dormant</span>&raquo;</span>
+				<ul>
+					<li><a href="/vpn/vpn.htm">&nbsp;OpenVPN</a></li>
+					<li><a href="/r&amp;d/assimilator.htm">&nbsp;The Assimilator</a></li>
+					<li><a href="/aspi_me.htm">&nbsp;ASPI ME</a></li>
+				</ul>
+			</li>
+
+			<li><a href="/health.htm"><span class="drop"><span>Health</span>&raquo;</span>
+				<ul>
+					<li><a href="/health.htm">&nbsp;Health Homepage</a></li>
+					<li><a href="/health/lowcarb.htm">&nbsp;The Low Carb Choice</a></li>
+					<li><a href="/health/vitamin-d.htm">&nbsp;Vitamin D</a></li>
+					<li><a href="/health/sleep/healthy_sleep_formula.htm">&nbsp;Healthy Sleep Formula</a></li>
+					<li><a href="/zeo.htm">&nbsp;Zeo Sleep Manager Pro</a></li>
+				</ul>
+			</li>
+
+		</ul>
+	</li>
+</ul>
+
+<ul>
+	<li id="other"><a href="/pdp-8/pdp-8.htm"><img src="/mb-other.gif" width="77" height="18" alt="[Other]" title="" />
+		<ul>
+			<li><a href="/sqrl/sqrl.htm">&nbsp;SQRL</a></li>
+			<li><a href="/pdp-8/pdp-8.htm">&nbsp;PDP-8 Computers</a></li>
+			<li><a href="/misc/truecrypt/truecrypt.htm">&nbsp;TrueCrypt Repository</a></li>
+			<li><a href="/Big-Number-Calculator.htm">&nbsp;Big Number Calculator</a></li>
+			<li><a href="/tqc/TheQuietCanine.htm">&nbsp;The Quiet Canine</a></li>
+		</ul>
+	</li>
+</ul>
+
+</div> <!-- close "menu" div -->
+</div></div></div> <!-- close the "minwidth" wrappers -->
+<!-- ###################### END OF GRC MASTHEAD MENU  ###################### -->
+
+
+<a style="text-decoration: none;" href="/dns/benchmark.htm"><div style="color:#FFF; font-size:16pt; background-color:#0A8; text-align: center; font-family: Arial, Geneva, Helvetica, Verdana, sans-serif; "><b><i>Click Here</i></b> &#8211; for GRC's <b><i>new</i></b> DNS Benchmark <b><i>v2 !!</i></b></div></a><center>
+<div style="background:black"><br /><table border=0 cellpadding=0 cellspacing=0><tr><span class="font7px"><br /><br /></span></tr><tr valign=middle><td><img src="/image/snsmall.gif" width=97 height=97 border=0></td><td align=center><img src="/image/sn_security.gif" width=312 height=48 border=0 hspace=20><br><img src="/image/sn_now.gif" width=175 height=48 border=0></td><td><img src="/image/snsmall.gif" width=97 height=97 border=0></td></tr><tr><td colspan=3 align=center><img src="/image/transpixel.gif" width=1 height=12 border=0><br><font color="white" size=2><b>Our weekly audio security column<br>&amp; podcast by Steve Gibson and Leo Laporte</b></font></td></tr></table></div>
+<div style="background:url(/image/fade.gif) repeat-x; height:30px;"></div>
+
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td><font size=2><b><a href="http://www.leoville.com">TechTV's Leo Laporte</a> and I</b> take 30 to 90 minutes near the end of each week to discuss important issues of personal computer security. Sometimes we'll discuss something that just happened. Sometimes we'll talk about long-standing problems, concerns, or solutions. Either way, every week we endeavor to produce something interesting and important for every personal computer user.
+<br><br>
+<img src="/image/textbullet.gif" width=8 height=8 vspace=1 border=0>&nbsp;<b>You may download and listen to selected episodes</b> from this page (see below), or <a href="http://leoville.tv/podcasts/sn.xml">subscribe to the ongoing series as an RSS "podcast"</a> to have them automatically downloaded to you as they are produced. To subscribe, use whichever service you prefer<b>&nbsp;.&nbsp;.&nbsp;.</b>
+
+<p align=center><a href="http://phobos.apple.com/WebObjects/MZStore.woa/wa/com.apple.jingle.app.store.DirectAction/viewPodcast?id=79016499"><img height="15" width="61"  hspace=10   border=0 title=" Subscribe to Security Now! through Apple's iTunes " src="/image/itunes_button.gif"></a><a href="podcast://leo.am/podcasts/sn"><img src="/image/iPodderX_button.gif" border=0 hspace=10 width=80 height=15 title=" Subscribe to Security Now! with iPodderX "></a><a href="http://odeo.com/channel/24852/view"><img src="/image/odeo_button.gif" border="0" hspace=10 width="80" height="15" title=" Subscribe to Security Now! via Odeo "></a><a href="http://www.podnova.com/index_your_podcasts.srf?action=add&amp;url=http://leo.am/podcasts/sn"><img border="0" src="/image/podnova_button.gif" width="91" height="17" hspace=10  title=" Subscribe to Security Now! via podnova "></a></p>
+<img src="/image/textbullet.gif" width=8 height=8 vspace=1 border=0>&nbsp;<b>Receive an automatic eMail reminder</b> whenever a new episode is posted here (from ChangeDetection.com). See the section at the bottom of this page.<br><img src="/image/transpixel.gif" width=1 height=8 border=0><br><img src="/image/textbullet.gif" width=8 height=8 vspace=1 border=0>&nbsp;<b>Send us your feedback:</b> Use the form at the bottom of the page to share your opinions, thoughts, ideas, and suggestions for future episodes.<br><img src="/image/transpixel.gif" width=1 height=8 border=0><br><img src="/image/textbullet.gif" width=8 height=8 vspace=1 border=0>&nbsp;<b>Leo also produces "<a href="http://www.thisweekintech.com">This Week in Tech</a>" (TWiT)</b> and a number of other very popular podcasts (TWiT is America's most listened to podcast!) So if you are looking for more informed technology talk, be sure to check out <a href="http://www.leoville.com">Leo's other podcasts</a> and mp3 files.<br><img src="/image/transpixel.gif" width=1 height=8 border=0><br><img src="/image/textbullet.gif" width=8 height=8 vspace=1 border=0>&nbsp;<b>And a huge thanks to AOL Radio</b> for hosting the high-quality MP3 files and providing the bandwidth to make this series possible. We use "local links" to count downloads, but all of the high-quality full-size MP3 files are being served by AOL Radio.</font></td></tr></table>
+
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td><font size=2><br><br><img src="/image/darkredpixel.gif" width="100%" height=3 border=0><br><center><img src="/image/transpixel.gif" width=1 height=8 border=0><br><img src="/image/snonwhite.gif" width=402 height=41 vspace=10 border=0><br><font color="#990033" size=5>Episode Archive</font><br><br><b>Each episode has SIX resources:</b><br><img src="/image/transpixel.gif" width=1 height=5 border=0><br><table bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td><table width="100%" bgcolor=white border=0 cellpadding=5 cellspacing=0><tr><td><table border=0 cellspacing=5 cellpadding=0>
+<tr><td><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK on these to download High Quality MP3 audio files" hspace=5 border=0></td><td><font size=1><b>High quality 64 kbps mp3 audio file</b></font></td></tr>
+<tr><td><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK on these to download Lower Quality MP3 audio files" hspace=5 border=0></td><td><font size=1><b>Quarter size, bandwidth-conserving,<br>16 kbps (lower quality) mp3 audio file</b></font></td></tr>
+<tr><td><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK on these to jump to a page of supplementary notes" hspace=5 border=0></td><td><font size=1><b>A web page with any supplementary notes</b></font></td></tr>
+<tr><td><img src="/image/htmlfile.gif" width=16 height=16 title="RIGHT CLICK on these to download TEXT format transcripts" hspace=5 border=0></td><td><font size=1><b>A web page text transcript of the episode</b></font></td></tr>
+<tr><td><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK on these to download TEXT format transcripts" hspace=5 border=0></td><td><font size=1><b>A simple text transcript of the episode</b></font></td></tr>
+<tr><td><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK on these to download PDF format transcripts" hspace=5 border=0></td><td><font size=1><b>Ready-to-print PDF (Acrobat) transcript&nbsp;&nbsp;</b></font></td></tr>
+</table>
+
+</td></tr></table></td></tr></table><img src="/image/transpixel.gif" width=1 height=8 border=0><br><font size=1>(Note that the text transcripts will appear a few hours later<br>than the audio files since they are created afterwards.)</font></center><br><b>For best results: RIGHT-CLICK on one of the two audio icons <img src="/image/speaker-hq.gif" width=16 height=16 hspace=2 border=0> &amp; <img src="/image/speaker-lq.gif" width=16 height=16 hspace=2 border=0> below</b> then choose "Save Target As..." to download the audio file to your computer <b>before</b> starting to listen. For the other resources you can either LEFT-CLICK to open in your browser or RIGHT-CLICK to save the resource to your computer.</font></td></tr></table>
+
+<!-- ################################################################################ -->
+
+<a name="20"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#20 | 29 Dec 2005 | 54 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>A SERIOUS new Windows vulnerability &#151; and Listener Q&amp;A</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>On December 28th <a href="/sn/notes-020.htm">a serious new Windows vulnerability</a> has appeared and been immediately exploited by a growing number of malicious web sites to install malware. Many worse viruses and worms are expected soon. We start off discussing this and <a href="/sn/notes-020.htm">our show notes provides a quick necesary workaround</a> until Microsoft provides a patch. Then we spend the next 45 minutes answering and discussing interesting listener questions.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-020.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>26&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-020-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>6.5&nbsp;MB</font></td><td><a href="/sn/notes-020.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>10&nbsp;KB</font></td><td><a href="/sn/sn-020.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>104&nbsp;KB</font></td><td><a href="/sn/sn-020.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>52&nbsp;KB</font></td><td><a href="/sn/sn-020.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>70&nbsp;KB</font></td>
+
+</tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="19"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#19 | 22 Dec 2005 | 53 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>VPNs Three: Hamachi, iPig, and OpenVPN</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I wrap up our multi-week, in-depth coverage of PC VPN solutions by discussing some aftermath of the zero-configuration Hamachi system; introducing "iPig," a very appealing new zero-configuration VPN contender; and describing the many faces of OpenVPN, the "Swiss army knife" of VPN solutions.
+</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-019.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>25&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-019-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>6.4&nbsp;MB</font></td><td><a href="/sn/notes-019.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.4&nbsp;KB</font></td><td><a href="/sn/sn-019.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>96&nbsp;KB</font></td><td><a href="/sn/sn-019.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>50&nbsp;KB</font></td><td><a href="/sn/sn-019.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>68&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="18"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#18 | 15 Dec 2005 | 33 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>"Hamachi" Rocks!</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>This week Leo and I discuss and describe the brand new, ready to emerge from a its long development beta phase, ultra-secure, lightweight, high-performance, highly-polished, multi-platform, peer-to-peer and FREE! personal virtual private networking system known as "<a href="http://www.hamachi.cc"><b>Hamachi</b></a>". After two solid weeks of testing and intense dialog with Hamachi's lead developer and designer, I have fully vetted the system's security architecture and have it running on many of my systems.  While I am travelling to Toronto this week, Hamachi is keeping my roaming laptop securely and directly connected to all of my machines back home. Don't miss this one!</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-018.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>16&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-018-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>4.1&nbsp;MB</font></td><td><a href="/sn/notes-018.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.4&nbsp;KB</font></td><td><a href="/sn/sn-018.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>81&nbsp;KB</font></td><td><a href="/sn/sn-018.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>36&nbsp;KB</font></td><td><a href="/sn/sn-018.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>58&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="17"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#17 | 08 Dec 2005 | 33 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>PPTP and IPSec VPN Technology</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>In our continuing exploration of VPN technology for protecting network users on networks they don't control, Leo and I discuss the oldest "original" VPN protocols: Industry standard IPSec, and Microsoft's own PPTP and L2TP/IPSec.  We examine and explain the trouble with interconnecting Windows machines to third-party VPN routers and examine the many reasons these older technologies are probably not optimal for on-the-go road warriors.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-017.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>16&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-017-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>4.0&nbsp;MB</font></td><td><a href="/sn/notes-017.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>7.7&nbsp;KB</font></td><td><a href="/sn/sn-017.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>61&nbsp;KB</font></td><td><a href="/sn/sn-017.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>31&nbsp;KB</font></td><td><a href="/sn/sn-017.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>51&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="16"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#16 | 01 Dec 2005 | 42 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Listener feedback Q&amp;A #1</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I discuss questions asked by listeners of our previous episodes. We tie up loose ends, explore a wide range of topics that are too small to fill their own episode, clarify any confusion from previous installments, and present real world 'application notes' for any of the security technologies we have previously discussed.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-016.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>20&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-016-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>5.1&nbsp;MB</font></td><td><a href="/sn/notes-016.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.3&nbsp;KB</font></td><td><a href="/sn/sn-016.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>100&nbsp;KB</font></td><td><a href="/sn/sn-016.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>43&nbsp;KB</font></td><td><a href="/sn/sn-016.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>65&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="15"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#15 | 24 Nov 2005 | 43 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>VPN Secure Tunneling Solutions</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I discuss the use of SSL and SSH encrypted tunneling for providing privacy and security whenever an insecure local network is being used &#151; such as at an open WiFi hotspot or when using a hotel's network. These solutions are not transparent and tend to be configuration intensive. They also require the use of a "server" of some sort at the user's home or office. This makes these approaches less suitable for casual users, but offers a solution for the more technically inclined road warriors.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-015.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>21&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-015-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>5&nbsp;MB</font></td><td><a href="/sn/notes-015.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>5.6&nbsp;KB</font></td><td><a href="/sn/sn-015.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>85&nbsp;KB</font></td><td><a href="/sn/sn-015.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>40&nbsp;KB</font></td><td><a href="/sn/sn-015.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>60&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="14"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#14 | 17 Nov 2005 | 27 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Virtual Private Networks (VPN): Theory</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I first follow-up on the past two episodes, discussing new developments in the continuing Sony Rootkit DRM drama, and clearing up some confusion over the crackability of WPA passphrases.  Then, in this first of our two-part series on VPNs, we discuss the theory of VPN connections and tunnels, explaining how they work and why they represent such a terrific solution for anyone who needs security while they're away from home.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-014.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>13&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-014-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>3.2&nbsp;MB</font></td><td><a href="/sn/notes-014.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.3&nbsp;KB</font></td><td><a href="/sn/sn-014.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>74&nbsp;KB</font></td><td><a href="/sn/sn-014.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>29&nbsp;KB</font></td><td><a href="/sn/sn-014.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>52&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="13"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#13 | 10 Nov 2005 | 35 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Unbreakable WiFi Security</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I follow-up on last week's discussion of the Sony Rootkit debacle with the distressing news of "phoning home" (spyware) behavior from the Sony DRM software, and the rootkit's exploitation by a new malicious backdoor Trojan. We then return to complete our discussion of WiFi security, demystifying the many confusing flavors of WPA encryption and presenting several critical MUST DO tips for WPA users.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-013.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>17&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-013-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>4.2&nbsp;MB</font></td><td><a href="/sn/notes-013.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>3.2&nbsp;KB</font></td>
+
+<td><a href="/sn/sn-013.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>70&nbsp;KB</font></td><td><a href="/sn/sn-013.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>32&nbsp;KB</font></td><td><a href="/sn/sn-013.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>54&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="12"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#12 | 03 Nov 2005 | 24 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Sony's "Rootkit Technology" DRM</b> (copy protection gone bad)</font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I discuss details and consequences of Sony Corporation's alarming "Rootkit" DRM (digital rights management) copy protection scheme. This poorly written software unnecessarily employs classic rootkit technology (see episode #9) to hide from its users after installation. It can not be uninstalled easily, it can be easily misused for malicious purposes, and it has been implicated in many repeated BSOD "blue screen of death" PC crashes.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-012.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>12&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-012-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.9&nbsp;MB</font></td><td><a href="/sn/notes-012.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>8.2&nbsp;KB</font></td><td><a href="/sn/sn-012.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>46&nbsp;KB</font></td><td><a href="/sn/sn-012.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>23&nbsp;KB</font></td><td><a href="/sn/sn-012.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>45&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="11"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#11 | 27 Oct 2005 | 38 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Bad WiFi Security</b> (WEP and MAC address filtering)</font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I answer some questions arising from last week's episode, then plow into a detailed discussion of the lack of security value of MAC address filtering, the futility of disabling SSID's for security, and the extremely poor security offered by the first-generation WEP encryption system.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-011.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>18&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-011-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>4.6&nbsp;MB</font></td><td><a href="/sn/notes-011.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.3&nbsp;KB</font></td><td><a href="/sn/sn-011.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>70&nbsp;KB</font></td><td><a href="/sn/sn-011.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>34&nbsp;KB</font></td><td><a href="/sn/sn-011.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>54&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="10"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#10 | 20 Oct 2005 | 28 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Open Wireless Access Points</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Leo and I examine the security and privacy considerations of using <b>non-encrypted</b> (i.e. 'Open') wireless access points at home and in public locations. We discuss the various ways of protecting privacy when untrusted strangers can 'sniff' the data traffic flowing to and from your online PC.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-010.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>14&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-010-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>3.4&nbsp;MB</font></td><td><a href="/sn/notes-010.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>3.2&nbsp;KB</font></td><td><a href="/sn/sn-010.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>51&nbsp;KB</font></td><td><a href="/sn/sn-010.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>28&nbsp;KB</font></td><td><a href="/sn/sn-010.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>47&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="9"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#9 | 13 Oct 2005 | 32 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Rootkits</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>This week we discuss "rootkit technology". We examine what rootkits are, why they have suddenly become a problem, and how that problem is rapidly growing in severity. We also discuss their detection and removal and point listeners to some very effective free rootkit detection solutions.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-009.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>16&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-009-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>3.9&nbsp;MB</font></td><td><a href="/sn/notes-009.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>5.2&nbsp;KB</font></td><td><a href="/sn/sn-009.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>70&nbsp;KB</font></td><td><a href="/sn/sn-009.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>33&nbsp;KB</font></td><td><a href="/sn/sn-009.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>53&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="8"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#8 | 06 Oct 2005 | 24 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Denial of Service (DoS) Attacks</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Distributed Denial of Service (DDoS) attacks are occurring with ever-greater frequency every day. Although these damaging attacks are often used to extort high-profile gaming and gambling sites before major gambling events, attacks are also launched against individual users who do something to annoy "zombie fleet masters" while they are online. Some router and firewall vendors claim that their devices prevent DDoS attacks. Is that possible? What can be done to dodge the bullet of a DDoS attack launched against you while you're online?</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-008.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>12&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-008-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.8&nbsp;MB</font></td><td><a href="/sn/notes-008.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.6&nbsp;KB</font></td><td><a href="/sn/sn-008.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>46&nbsp;KB</font></td><td><a href="/sn/sn-008.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>23&nbsp;KB</font></td><td><a href="/sn/sn-008.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>44&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="7"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#7 | 29 Sep 2005 | 36 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>SPYaWAREness</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Any contemporary discussion of threats to Internet security must discuss the history, current situation, and future of spyware. Leo and I spend a little more time than usual covering many aspects of this important topic. DON'T MISS the <a href="/sn/notes-007.htm">Episode Notes Page</a> for this episode!</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-007.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>17&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-007-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>4.4&nbsp;MB</font></td><td><a href="/sn/notes-007.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>17&nbsp;KB</font></td><td><a href="/sn/sn-007.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>61&nbsp;KB</font></td><td><a href="/sn/sn-007.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>34&nbsp;KB</font></td><td><a href="/sn/sn-007.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>52&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="6"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#6 | 22 Sep 2005 | 18 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Mechanical &amp; Electromagnetic Information Leakage</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Triggered by a recent report of three UC Berkeley researchers recovering text typed at a keyboard (any keyboard) after simply listening to ten minutes of typing, Leo and I discuss the weird realm of "alternative information leakage" &#151; from CRT glowing, to radio emissions, to LEDs lamps on the front of network equipment<b>&nbsp;.&nbsp;.&nbsp;.</b> to a microphone listening to anyone typing.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-006.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>8.7&nbsp;MB</font></td><td><a href="https://media.grc.com/sn/sn-006-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.2&nbsp;MB</font></td><td><a href="/sn/notes-006.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>8.0&nbsp;KB</font></td><td><a href="/sn/sn-006.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>36&nbsp;KB</font></td><td><a href="/sn/sn-006.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>18&nbsp;KB</font></td><td><a href="/sn/sn-006.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>40&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="5"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#5 | 15 Sep 2005 | 20 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Personal Password Policy &#151; Part 2</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Our previous episode (#4), which discussed personal password policies, generated so much great listener feedback, thoughts, ideas, and reminders about things we didn't mention, that we decided to wrap up this important topic with a final episode to share listeners' ideas and to clarify some things we left unsaid.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-005.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>9.5&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="https://media.grc.com/sn/sn-005-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.4&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="/sn/notes-005.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>7.9&nbsp;KB</font></td><td><a href="/sn/sn-005.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>34&nbsp;KB</font></td><td><a href="/sn/sn-005.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>21&nbsp;KB&nbsp;&nbsp;</font></td><td><a href="/sn/sn-005.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>41&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="4"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#4 | 08 Sep 2005 | 24 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>Personal Password Policy</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Everyone who uses web-based services such as eBay, Amazon, and Yahoo, needs to authenticate their identity with passwords. Password quality is important since easily guessable passwords can be easily defeated. Leo and I recap a bit from last week's program, then discuss passwords. We suggest an approach that anyone can use to easily create unbreakable passwords.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-004.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>12&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="https://media.grc.com/sn/sn-004-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.9&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="/sn/notes-005.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>7.4&nbsp;KB</font></td><td><a href="/sn/sn-004.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>52&nbsp;KB</font></td><td><a href="/sn/sn-004.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>25&nbsp;KB&nbsp;&nbsp;</font></td><td><a href="/sn/sn-004.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>46&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="3"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#3 | 01 Sep 2005 | 25 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>NAT Routers as Firewalls</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>Most people don't think of common NAT routers as hardware firewalls, but ANY NAT router inherently provides terrific security and protection against incoming malicious traffic. Learn how and why this is, and which default settings MUST be changed to lock down the security of your NAT router.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-003.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>12&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="https://media.grc.com/sn/sn-003-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>3.1&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="/nat/nat.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>7.4&nbsp;KB</font></td><td><a href="/sn/sn-003.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>51&nbsp;KB</font></td><td><a href="/sn/sn-003.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>26&nbsp;KB&nbsp;&nbsp;</font></td><td><a href="/sn/sn-003.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>47&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="2"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#2 | 25 Aug 2005 | 25 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>" HoneyMonkeys "</b></font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>How Microsoft's "HoneyMonkey" system works, how it finds malicious web sites before they find you, and what Microsoft is doing (and NOT doing) with this valuable security information it is now collecting.</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-002.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>12&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="https://media.grc.com/sn/sn-002-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>3.0&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="/sn/notes-002.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>2.4&nbsp;KB</font></td><td><a href="/sn/sn-002.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>69&nbsp;KB</font></td><td><a href="/sn/sn-002.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>26&nbsp;KB&nbsp;&nbsp;</font></td><td><a href="/sn/sn-002.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download PDF format transcript" border=0 align=left></a><font 	size=1>49&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<a name="1"></a>
+<br>
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td>
+<font size=1>Episode&nbsp;#1 | 19 Aug 2005 | 18 min.</font></td></tr></table><table width="85%" bgcolor="#999999" border=0 cellpadding=1 cellspacing=0><tr><td>
+<table width="100%" bgcolor="#F8F8F8" border=0 cellpadding=0 cellspacing=0><tr><td><table width="100%" border=0 cellpadding=0 cellspacing=10><tr><td colspan=6><font size=1><font size=2><b>As the Worm Turns</b> &#151; the first Internet worms of 2005</font><br><img src="/image/transpixel.gif" width=1 height=4 border=0><br>How a never-disclosed Windows vulnerability was quickly reverse-engineered from the patches to fix it and turned into more than 12 potent and damaging Internet worms in three days. What does this mean for the future of Internet security?</font></td></tr>
+
+<tr><td><a href="https://media.grc.com/sn/sn-001.mp3"><img src="/image/speaker-hq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a high quality MP3 audio file" border=0 align=left></a><font size=1>8.7&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="https://media.grc.com/sn/sn-001-lq.mp3"><img src="/image/speaker-lq.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a smaller MP3 audio file" border=0 align=left></a><font size=1>2.2&nbsp;MB&nbsp;&nbsp;</font></td><td><a href="/sn/notes-001.htm"><img src="/image/snnotes.gif" width=16 height=16 title="LEFT CLICK to view any supplementary notes" border=0 align=left></a><font size=1>7.4&nbsp;KB</font></td><td><a href="/sn/sn-001.htm"><img src="/image/htmlfile.gif" width=16 height=16 title="LEFT CLICK to view text transcript as web page" border=0 align=left></a><font size=1>40&nbsp;KB</font></td><td><a href="/sn/sn-001.txt"><img src="/image/textfile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a text format transcript" border=0 align=left></a><font size=1>18&nbsp;KB&nbsp;&nbsp;</font></td><td><a href="/sn/sn-001.pdf"><img src="/image/pdffile.gif" width=16 height=16 title="RIGHT CLICK and SAVE AS to download a PDF format transcript" border=0 align=left></a><font 	size=1>41&nbsp;KB</font></td></tr>
+
+</table></td></tr></table></td></tr></table>
+
+<p>
+&bull;&nbsp;<a href="/securitynow.htm">Current Podcast Page</a><br />
+&bull;&nbsp;<a href="/sn/past/2025.htm">Security Now 2025</a><br />
+&bull;&nbsp;<a href="/sn/past/2024.htm">Security Now 2024</a><br />
+&bull;&nbsp;<a href="/sn/past/2023.htm">Security Now 2023</a><br />
+&bull;&nbsp;<a href="/sn/past/2022.htm">Security Now 2022</a><br />
+&bull;&nbsp;<a href="/sn/past/2021.htm">Security Now 2021</a><br />
+&bull;&nbsp;<a href="/sn/past/2020.htm">Security Now 2020</a><br />
+&bull;&nbsp;<a href="/sn/past/2019.htm">Security Now 2019</a><br />
+&bull;&nbsp;<a href="/sn/past/2018.htm">Security Now 2018</a><br />
+&bull;&nbsp;<a href="/sn/past/2017.htm">Security Now 2017</a><br />
+&bull;&nbsp;<a href="/sn/past/2016.htm">Security Now 2016</a><br />
+&bull;&nbsp;<a href="/sn/past/2015.htm">Security Now 2015</a><br />
+&bull;&nbsp;<a href="/sn/past/2014.htm">Security Now 2014</a><br />
+&bull;&nbsp;<a href="/sn/past/2013.htm">Security Now 2013</a><br />
+&bull;&nbsp;<a href="/sn/past/2012.htm">Security Now 2012</a><br />
+&bull;&nbsp;<a href="/sn/past/2011.htm">Security Now 2011</a><br />
+&bull;&nbsp;<a href="/sn/past/2010.htm">Security Now 2010</a><br />
+&bull;&nbsp;<a href="/sn/past/2009.htm">Security Now 2009</a><br />
+&bull;&nbsp;<a href="/sn/past/2008.htm">Security Now 2008</a><br />
+&bull;&nbsp;<a href="/sn/past/2007.htm">Security Now 2007</a><br />
+&bull;&nbsp;<a href="/sn/past/2006.htm">Security Now 2006</a><br />
+&bull;&nbsp;<a href="/sn/past/2005.htm">Security Now 2005</a>
+</p>
+
+
+<br>
+
+<table width="85%" border=0 cellpadding=0 cellspacing=0><tr><td><img src="/image/darkredpixel.gif" width="100%" height=3 border=0><br><br><font size=2><b>You can receive an eMail reminder</b> whenever this page is updated with a new Security Now! episode. Click the "Monitor Changes" button to have the highly-regarded "Change Detection" web site monitor this page and send you a note when it changes.
+<br><br>
+<!-- Begin ChangeDetection.com Panel HTML -->
+<!-- ChangeDetection.com id=4qxfzgwsns -->
+<form action="http://www.ChangeDetection.com/detect.html" method="get" target="_blank"><table width="100%" border=0 cellpadding=0 cellspacing=0><tr align=center valign="middle"><td><font size=2 face="Arial,Helvetica">Monitor this page for changes:&nbsp;</font></td><td><input type="submit" name="enter" value=" Monitor changes "></td><td><font face="Arial,Helvetica" size=2>(<a href="http://www.ChangeDetection.com/privacy.html" target="_blank">it's private</a> by <a href="http://www.ChangeDetection.com/monitor.html" target="_blank">ChangeDetection</a>)</font></td></tr></table></form>
+<!-- End ChangeDetection.com Panel HTML --><img src="/image/darkredpixel.gif" width="100%" height=3 border=0></font>
+
+<a name="bottom"></a><div class="dotted_green"><font size=2><div class="tight_center"><b>Security Now!, SpinRite Testimonials, and other Feedback:</b></div>Please use GRC's <a href="/feedback.htm"><b>Visitor &amp; Listener FEEDBACK Page</b></a> where you may easily submit any feedback for Security Now, SpinRite testimonials, suggestions for future Security Now topics or questions &amp comments for future Listener Feedback episodes. Thank you!<div class="tight_center"><a href="/feedback.htm"><b>https://www.grc.com/feedback</b></a></div>
+</font></div></td></tr></table>
+<!-- ChangeDetection.com detection="on" -->
+<br /><table border="0" cellpadding="0" cellspacing="0"><tr><td><a href="#top" target="_top"><img src="https://www.grctech.com/_otkrimrfwgvvl_/image/grc-icon.gif" width="51" height="51" border="0" alt="Jump to top of page" title="Jump to top of page"/></a></td><td><div style="margin:0 20px;"><font size="-2" color="#777777">Gibson Research Corporation is owned and operated by Steve Gibson.&nbsp;&nbsp;The contents<br />of this page are Copyright (c) 2026 Gibson Research Corporation. SpinRite, ShieldsUP,<br />NanoProbe, and any other indicated trademarks are registered trademarks of Gibson<br />Research Corporation, Laguna Hills, CA, USA. GRC's web and customer <a href="https://www.grc.com/privacy.htm" target="_top">privacy policy</a>.</font></div></td><td><div style="margin:7px 0;"><a href="#top" target="_top"><img src="https://www.grctech.com/_otkrimrfwgvvl_/image/jumptotop.png" width="52" height="38" border="0" alt="Jump to top of page"  title="Jump to top of page"/></a></div></td></tr></table><br />
+<!-- ChangeDetection.com detection="off" -->
+<table width="90%" border="0" cellspacing="0" cellpadding="0"><tr><td><font color="#666666" size="-2">Last Edit: Jan 02, 2015 at 16:07 (4,255.65 days ago)</font></td><td align="right"><font color="#666666" size="-2">Viewed 38 times per day</font></td></tr></table>
+</center><a name="bottom"></a></body></html>
