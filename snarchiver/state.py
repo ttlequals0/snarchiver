@@ -51,7 +51,7 @@ def load_state(path) -> State:
             pending.add(item)
 
         return State(last_complete=last_complete, pending=pending)
-    except Exception as exc:
+    except (OSError, ValueError, TypeError, KeyError) as exc:
         logger.warning("state file %s unreadable (%s); starting fresh", path, exc)
         return State()
 
