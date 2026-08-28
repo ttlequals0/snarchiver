@@ -34,9 +34,24 @@ def load_state(path) -> State:
         return State()
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        return State(last_complete=int(data.get("last_complete", 0)),
-                     pending=set(data.get("pending", [])))
-    except (ValueError, TypeError) as exc:
+
+        # Validate last_complete is an integer.
+        last_complete = data.get("last_complete", 0)
+        if not isinstance(last_complete, int):
+            raise ValueError(f"last_complete must be int, got {type(last_complete).__name__}")
+
+        # Validate pending is a list of integers.
+        pending_raw = data.get("pending", [])
+        if not isinstance(pending_raw, list):
+            raise ValueError(f"pending must be list, got {type(pending_raw).__name__}")
+        pending = set()
+        for item in pending_raw:
+            if not isinstance(item, int):
+                raise ValueError(f"pending items must be int, got {type(item).__name__}")
+            pending.add(item)
+
+        return State(last_complete=last_complete, pending=pending)
+    except Exception as exc:
         logger.warning("state file %s unreadable (%s); starting fresh", path, exc)
         return State()
 

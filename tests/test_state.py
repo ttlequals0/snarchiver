@@ -59,3 +59,47 @@ class TestState(unittest.TestCase):
     def test_default_path_is_outside_the_import_directory(self):
         self.assertEqual(pathlib.Path(DEFAULT_STATE_PATH).name,
                          "snarchiver-state.json")
+
+    def test_directory_at_state_path_gives_empty_state(self):
+        # IsADirectoryError must degrade to empty state, not crash.
+        self.path.mkdir(parents=True)
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+
+    def test_permission_denied_gives_empty_state(self):
+        # PermissionError must degrade to empty state, not crash.
+        self.path.write_text('{"last_complete": 5, "pending": []}')
+        self.path.chmod(0o000)
+        try:
+            state = load_state(self.path)
+            self.assertEqual(state.last_complete, 0)
+            self.assertEqual(state.pending, set())
+        finally:
+            self.path.chmod(0o644)
+
+    def test_pending_as_bare_string_gives_empty_state(self):
+        # pending: "abc" silently becomes {'a','b','c'} with old code.
+        # Must validate and degrade, not corrupt.
+        self.path.write_text('{"last_complete": 5, "pending": "abc"}')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+        # Ensure pending is not corrupted to string chars.
+        self.assertNotIn('a', state.pending)
+
+    def test_last_complete_as_string_gives_empty_state(self):
+        # last_complete: "123" must not be coerced; must degrade.
+        self.path.write_text('{"last_complete": "123", "pending": []}')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+
+    def test_pending_items_as_strings_gives_empty_state(self):
+        # pending: ["1", "2"] (string items) must degrade, not create string set.
+        self.path.write_text('{"last_complete": 5, "pending": ["1", "2"]}')
+        state = load_state(self.path)
+        self.assertEqual(state.last_complete, 0)
+        self.assertEqual(state.pending, set())
+        # Ensure pending is not corrupted to string items.
+        self.assertNotIn("1", state.pending)
