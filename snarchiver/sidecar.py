@@ -16,8 +16,6 @@ def write_sidecars(out_dir, stem: str, episode, published_at: str) -> None:
     out_dir = pathlib.Path(out_dir)
     body = description_text(episode)
 
-    (out_dir / f"{stem}.txt").write_text(body + "\n", encoding="utf-8")
-
     payload = {
         "title": episode.title,
         "description": body,
@@ -25,5 +23,23 @@ def write_sidecars(out_dir, stem: str, episode, published_at: str) -> None:
         "season": SEASON,
         "episode": episode.number,
     }
-    (out_dir / f"{stem}.json").write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    json_path = out_dir / f"{stem}.json"
+    json_tmp = out_dir / f"{stem}.json.tmp"
+    txt_path = out_dir / f"{stem}.txt"
+    txt_tmp = out_dir / f"{stem}.txt.tmp"
+
+    try:
+        json_tmp.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        json_tmp.replace(json_path)
+    except Exception:
+        json_tmp.unlink(missing_ok=True)
+        raise
+
+    try:
+        txt_tmp.write_text(body + "\n", encoding="utf-8")
+        txt_tmp.replace(txt_path)
+    except Exception:
+        txt_tmp.unlink(missing_ok=True)
+        raise
