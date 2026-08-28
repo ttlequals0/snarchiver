@@ -30,6 +30,21 @@ class TestParseTwitPage(unittest.TestCase):
     def test_no_notes_url(self):
         self.assertIsNone(self.episode.notes_url)
 
+    def test_notes_style_href_on_the_page_is_still_not_picked_up(self):
+        # test_no_notes_url only proves the fixture page happens to have no
+        # notes link; it would pass even if TWiT parsing wrongly extracted
+        # one. Feed a page that DOES carry a notes-style href and confirm
+        # it's still ignored -- TWiT pages have no show-notes concept.
+        page = (
+            '<meta property="og:title" content="Security Now: Has Notes Link | TWiT.TV">'
+            '<div class="air-date">Dec 25th 2013</div>'
+            '<meta property="og:description" content="desc">'
+            '<a href="/sn/notes-436.htm">Show Notes</a>'
+        )
+        episode = parse_twit_page(page, 436)
+        self.assertIsNotNone(episode)
+        self.assertIsNone(episode.notes_url)
+
     def test_source_marked_twit(self):
         self.assertEqual(self.episode.source, "twit")
 

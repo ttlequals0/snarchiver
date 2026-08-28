@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 GRC_BASE = "https://www.grc.com/"
 
-_BLOCK_RE = re.compile(r'<a name="(\d+)"></a>(.*?)(?=<a name="\d+"></a>|\Z)', re.S)
+# Bounded at the close of the episode's own nested table, not a lookahead to
+# the next anchor: the last block on a page must not run to \Z and swallow
+# page footer markup.
+_BLOCK_RE = re.compile(
+    r'<a name="(\d+)"></a>(.*?)</table></td></tr></table></td></tr></table>', re.S)
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 _META_RE = re.compile(r"Episode&nbsp;#(\d+)\s*\|\s*([^|<]+?)\s*(?:\||<)")
 _TITLE_RE = re.compile(r"<b>(.*?)</b>", re.S)

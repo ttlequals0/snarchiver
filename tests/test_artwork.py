@@ -55,6 +55,34 @@ class TestExtractCoverRobustness(unittest.TestCase):
             size = _page_one_size("/tmp/test.pdf")
             self.assertEqual(size, (600, 400), "Mock stdout should parse to (600, 400)")
 
+    def test_malformed_first_row_falls_through_to_a_later_usable_row(self):
+        mock_stdout = (
+            "page   num  type   width height color comp bpc  enc interp  object ID\n"
+            "---------------------------------------------------------------------\n"
+            "   1     0 image     N/A   N/A  icc     3   8  jpeg   no         8  0\n"
+            "   1     1 image     600   400  icc     3   8  jpeg   no         9  0"
+        )
+        with patch("snarchiver.artwork.subprocess.run") as mock_run:
+            result = MagicMock()
+            result.returncode = 0
+            result.stdout = mock_stdout
+            mock_run.return_value = result
+            size = _page_one_size("/tmp/test.pdf")
+            self.assertEqual(size, (600, 400))
+
+    def test_all_rows_malformed_returns_none(self):
+        mock_stdout = (
+            "page   num  type   width height color comp bpc  enc interp  object ID\n"
+            "---------------------------------------------------------------------\n"
+            "   1     0 image     N/A   N/A  icc     3   8  jpeg   no         8  0"
+        )
+        with patch("snarchiver.artwork.subprocess.run") as mock_run:
+            result = MagicMock()
+            result.returncode = 0
+            result.stdout = mock_stdout
+            mock_run.return_value = result
+            self.assertIsNone(_page_one_size("/tmp/test.pdf"))
+
     @patch("snarchiver.artwork.subprocess.run")
     def test_extract_cover_handles_file_not_found(self, mock_run):
         mock_run.side_effect = FileNotFoundError("pdfimages not found")

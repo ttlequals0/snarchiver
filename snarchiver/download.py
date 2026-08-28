@@ -18,6 +18,8 @@ def _request(url):
 
 
 def _with_retries(action, *, retries, backoff, what):
+    if retries <= 0:
+        raise ValueError(f"retries must be positive, got {retries}")
     last = None
     for attempt in range(retries):
         try:

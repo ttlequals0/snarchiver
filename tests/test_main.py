@@ -17,32 +17,47 @@ def ep(number, *, audio="https://media.grc.com/sn/sn-001.mp3", desc="Body."):
                    notes_url=None, source="grc")
 
 
+def completed_through(n):
+    return set(range(1, n + 1))
+
+
 class TestSelectTargets(unittest.TestCase):
     def setUp(self):
         self.catalog = {n: ep(n) for n in (1, 2, 3, 10, 11)}
 
     def test_uses_state_floor_by_default(self):
-        state = State(last_complete=10, pending=set())
+        state = State(completed=completed_through(10), pending=set())
         self.assertEqual([e.number for e in select_targets(self.catalog, state,
                                                            None, None)], [11])
 
     def test_explicit_from_overrides_floor(self):
-        state = State(last_complete=10, pending=set())
+        state = State(completed=completed_through(10), pending=set())
         self.assertEqual([e.number for e in select_targets(self.catalog, state,
                                                            2, None)], [2, 3, 10, 11])
 
     def test_to_bounds_the_top(self):
-        state = State(last_complete=0, pending=set())
+        state = State(completed=set(), pending=set())
         self.assertEqual([e.number for e in select_targets(self.catalog, state,
                                                            1, 3)], [1, 2, 3])
 
     def test_pending_below_floor_is_retried(self):
-        state = State(last_complete=10, pending={2})
+        state = State(completed=completed_through(10), pending={2})
         self.assertEqual([e.number for e in select_targets(self.catalog, state,
                                                            None, None)], [2, 11])
 
+    def test_pending_above_to_is_excluded(self):
+        # --to must bound pending the same as everything else.
+        state = State(completed=set(), pending={11})
+        self.assertEqual([e.number for e in select_targets(self.catalog, state,
+                                                           1, 3)], [1, 2, 3])
+
+    def test_pending_below_floor_and_within_to_is_retried(self):
+        state = State(completed=completed_through(10), pending={2})
+        self.assertEqual([e.number for e in select_targets(self.catalog, state,
+                                                           None, 2)], [2])
+
     def test_targets_are_sorted_and_deduped(self):
-        state = State(last_complete=0, pending={1, 2})
+        state = State(completed=set(), pending={1, 2})
         numbers = [e.number for e in select_targets(self.catalog, state, 1, None)]
         self.assertEqual(numbers, sorted(set(numbers)))
 
@@ -246,6 +261,110 @@ class TestMainCatalogGap(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         state = load_state(self.state_path)
         self.assertEqual(state.last_complete, 7)
+
+    def test_hole_in_this_runs_catalog_never_rolls_floor_back_below_prior_progress(self):
+        # A prior, fully-successful run already got through episode 1090.
+        # This run's catalog is missing early numbers (a page failed to
+        # fetch) even though 1090 worth of progress is already recorded --
+        # that must not roll the floor backwards. This is deliberate,
+        # previously-undocumented behaviour of the catalog-gap handling.
+        from snarchiver.state import State, save_state
+        save_state(self.state_path, State(completed=set(range(1, 1091))))
+
+        episodes = {n: ep(n) for n in (1091, 1093)}  # 1092 missing: a fetch hole
+        result = CatalogResult(episodes=episodes,
+                               failed_pages=["https://www.grc.com/sn/past/2024.htm"])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader):
+            exit_code = main(["--out", str(self.out), "--state", str(self.state_path),
+                              "--delay", "0"])
+
+        self.assertNotEqual(exit_code, 0)
+        state = load_state(self.state_path)
+        self.assertGreaterEqual(state.last_complete, 1090)
+
+
+class TestMainSaveStateFailure(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.out = pathlib.Path(self.tmp.name) / "out"
+        self.state_path = pathlib.Path(self.tmp.name) / "state.json"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake_downloader(self, url, dest, **kwargs):
+        dest.write_bytes(b"audio")
+
+    def test_save_state_failure_is_logged_and_archiving_continues(self):
+        # A full disk or permission error writing state must not abort the
+        # run: it should log and keep archiving the remaining episodes.
+        episodes = {n: ep(n) for n in (1, 2, 3)}
+        result = CatalogResult(episodes=episodes, failed_pages=[])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader), \
+             mock.patch("snarchiver.__main__.save_state",
+                        side_effect=OSError("disk full")), \
+             self.assertLogs("snarchiver", level="ERROR") as logs:
+            exit_code = main(["--out", str(self.out), "--state", str(self.state_path),
+                              "--delay", "0"])
+
+        self.assertEqual(exit_code, 1)
+        # All three episodes were still archived despite state never saving.
+        for n in (1, 2, 3):
+            self.assertTrue((self.out / f"s01e{n:04d} - Title {n}.mp3").exists())
+        self.assertTrue(any("could not save state" in line for line in logs.output))
+
+
+class TestMainIncompleteSummary(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.out = pathlib.Path(self.tmp.name) / "out"
+        self.state_path = pathlib.Path(self.tmp.name) / "state.json"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake_downloader(self, url, dest, **kwargs):
+        dest.write_bytes(b"audio")
+
+    def test_end_of_run_summarizes_incomplete_episodes(self):
+        episodes = {1: ep(1), 592: ep(592, audio=None), 1093: ep(1093, audio=None)}
+        result = CatalogResult(episodes=episodes, failed_pages=[])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader), \
+             self.assertLogs("snarchiver", level="WARNING") as logs:
+            main(["--out", str(self.out), "--state", str(self.state_path),
+                 "--delay", "0"])
+
+        summary_lines = [line for line in logs.output if "skipped as incomplete" in line]
+        self.assertEqual(len(summary_lines), 1)
+        self.assertIn("2", summary_lines[0])
+        self.assertIn("592", summary_lines[0])
+        self.assertIn("1093", summary_lines[0])
+
+    def test_no_summary_line_when_nothing_incomplete(self):
+        episodes = {1: ep(1)}
+        result = CatalogResult(episodes=episodes, failed_pages=[])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader), \
+             self.assertLogs("snarchiver", level="INFO") as logs:
+            main(["--out", str(self.out), "--state", str(self.state_path),
+                 "--delay", "0"])
+
+        self.assertFalse(any("skipped as incomplete" in line for line in logs.output))
 
 
 class TestMainDelaySkipsNoOpEpisodes(unittest.TestCase):

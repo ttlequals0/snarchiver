@@ -44,6 +44,16 @@ class TestGetText(unittest.TestCase):
         with self.assertRaises(OSError):
             download.get_text("https://x/", opener=opener, retries=2, backoff=0)
 
+    def test_zero_retries_raises_value_error(self):
+        opener = lambda req, timeout: FakeResponse(b"ok")
+        with self.assertRaises(ValueError):
+            download.get_text("https://x/", opener=opener, retries=0)
+
+    def test_negative_retries_raises_value_error(self):
+        opener = lambda req, timeout: FakeResponse(b"ok")
+        with self.assertRaises(ValueError):
+            download.get_text("https://x/", opener=opener, retries=-1)
+
 
 class TestDownloadFile(unittest.TestCase):
     def setUp(self):

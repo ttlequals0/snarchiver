@@ -36,7 +36,7 @@ def _page_one_size(pdf_path) -> tuple[int, int] | None:
             try:
                 return int(parts[3]), int(parts[4])
             except ValueError:
-                return None
+                continue  # this row is malformed; a later row may still be usable
     return None
 
 

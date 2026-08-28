@@ -2,6 +2,7 @@ import datetime
 import pathlib
 import unittest
 
+from snarchiver import catalog as catalog_mod
 from snarchiver.catalog import parse_listing_page
 
 FIXTURES = pathlib.Path(__file__).parent / "fixtures"
@@ -98,3 +99,15 @@ class TestParseListingPage(unittest.TestCase):
         # pattern must not change its result
         self.assertEqual(self.y2016[591].air_date, datetime.date(2016, 12, 20))
         self.assertEqual(self.y2016[591].title, "Law Meets Internet")
+
+
+class TestBlockBoundaries(unittest.TestCase):
+    def test_last_block_does_not_run_past_its_own_table(self):
+        # The last block on a page has no next anchor to bound it; it must
+        # stop at the close of its own nested table, not run to end-of-page
+        # and swallow footer markup.
+        page = ('<a name="1"></a>real content'
+               '</table></td></tr></table></td></tr></table>'
+               'FOOTER JUNK THAT MUST NOT APPEAR')
+        _, block = catalog_mod._BLOCK_RE.findall(page)[0]
+        self.assertNotIn("FOOTER JUNK", block)

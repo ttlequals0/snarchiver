@@ -38,7 +38,10 @@ def build_parser() -> argparse.ArgumentParser:
 def select_targets(catalog, state, from_, to):
     floor = state.floor() if from_ is None else from_
     wanted = {n for n in catalog if n >= floor and (to is None or n <= to)}
-    wanted |= {n for n in state.pending if n in catalog}
+    # Pending is retried regardless of floor (that's the point of pending),
+    # but --to still bounds it like everything else.
+    wanted |= {n for n in state.pending
+              if n in catalog and (to is None or n <= to)}
     return [catalog[n] for n in sorted(wanted)]
 
 
@@ -175,18 +178,28 @@ def main(argv=None) -> int:
         logger.error("no episodes found; is grc.com reachable?")
         return 1
 
-    # A page-fetch failure can hide episode numbers that are really upstream.
-    # Never let last_complete advance past such a hole, or those episodes
-    # become unreachable once a later run's floor sits above them.
     exit_code = 0
-    floor_cap = None
     if not catalog_result.complete:
+        # A page-fetch failure can hide episode numbers that are really
+        # upstream. Leave any resulting hole out of state.completed rather
+        # than capping anything: floor() already stops at the first
+        # incomplete number on its own, and completed entries from a prior
+        # run are never touched here, so a later run with a working fetch
+        # can still discover and fill the hole.
         floor_cap = _gap_floor(catalog)
         gap_msg = (f"; catalog has a hole starting at episode {floor_cap + 1}"
                   if floor_cap is not None else "; no hole below the current max")
         logger.error("catalog incomplete: failed pages %s%s",
                      catalog_result.failed_pages, gap_msg)
         exit_code = 1
+    else:
+        # The fetch was fully successful, so any number missing below the
+        # max is a genuine, permanent upstream skip, not a fetch artifact:
+        # there is nothing to archive, so mark it complete now rather than
+        # stalling the floor on it forever.
+        for number in range(1, max(catalog) + 1):
+            if number not in catalog:
+                state.mark_complete(number)
 
     published = assign_publish_dates(catalog.values())
     targets = select_targets(catalog, state, args.from_, args.to)
@@ -198,15 +211,12 @@ def main(argv=None) -> int:
         return exit_code
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    # Never cap below where the state already stood entering this run: the
-    # cap stops this run from advancing over a hole, it does not roll back
-    # progress a prior, fully-successful run already recorded.
-    cap_floor = max(floor_cap, state.last_complete) if floor_cap is not None else None
+    incomplete = []
     for index, episode in enumerate(targets):
         result = archive_episode(episode, published[episode.number], out_dir,
                                  state, artwork=use_artwork, force=args.force)
-        if cap_floor is not None and state.last_complete > cap_floor:
-            state.last_complete = cap_floor
+        if result == "incomplete":
+            incomplete.append(episode.number)
         logger.info("ep %d: %s", episode.number, result)
         try:
             save_state(state_path, state)
@@ -215,6 +225,11 @@ def main(argv=None) -> int:
             exit_code = 1
         if args.delay and result in NETWORK_RESULTS and index + 1 < len(targets):
             time.sleep(args.delay)
+    if incomplete:
+        # Each incomplete episode already logged a warning mid-run; that
+        # scrolls away over an hours-long run, so summarize at the end too.
+        logger.warning("%d episode(s) skipped as incomplete: %s",
+                       len(incomplete), ", ".join(str(n) for n in incomplete))
     return exit_code
 
 
