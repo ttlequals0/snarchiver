@@ -1,6 +1,8 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import subprocess
+import tempfile
+import pathlib
 
 from snarchiver.artwork import MAX_ASPECT, MIN_DIMENSION, acceptable, extract_cover
 
@@ -51,8 +53,26 @@ class TestExtractCoverRobustness(unittest.TestCase):
         self.assertFalse(result)
 
     @patch("snarchiver.artwork.subprocess.run")
-    def test_extract_cover_handles_empty_output(self, mock_run):
-        mock_run.return_value.returncode = 0
-        mock_run.return_value.stdout = ""
-        result = extract_cover("/tmp/test.pdf", "/tmp/out.jpg")
-        self.assertFalse(result)
+    def test_extract_cover_cleans_up_on_move_failure(self, mock_run):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dest = pathlib.Path(tmpdir) / "out.jpg"
+            staged = dest.with_name(dest.name + ".part")
+
+            def subprocess_side_effect(*args, **kwargs):
+                result = MagicMock()
+                result.returncode = 0
+                if "-list" in args[0]:
+                    result.stdout = "page   num  type   width height\n1       0    image    600    400"
+                else:
+                    work_dir = pathlib.Path(args[0][-1]).parent
+                    (work_dir / "img-000.jpg").write_text("fake image data")
+                return result
+
+            mock_run.side_effect = subprocess_side_effect
+
+            with patch.object(pathlib.Path, "replace") as mock_replace:
+                mock_replace.side_effect = OSError("Disk full")
+                result = extract_cover("/tmp/test.pdf", str(dest))
+                self.assertFalse(result)
+                self.assertFalse(staged.exists())
+                self.assertFalse(dest.exists())

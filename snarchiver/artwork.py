@@ -47,6 +47,7 @@ def extract_cover(pdf_path, dest) -> bool:
         return False
 
     dest = pathlib.Path(dest)
+    staged = dest.with_name(dest.name + ".part")
     with tempfile.TemporaryDirectory() as work:
         prefix = pathlib.Path(work) / "img"
         try:
@@ -58,8 +59,10 @@ def extract_cover(pdf_path, dest) -> bool:
         try:
             for candidate in sorted(pathlib.Path(work).iterdir()):
                 if candidate.suffix.lower() in _ACCEPTED_SUFFIXES:
-                    shutil.move(str(candidate), dest)
+                    shutil.copy2(str(candidate), staged)
+                    staged.replace(dest)
                     return True
         except OSError:
+            staged.unlink(missing_ok=True)
             return False
     return False
