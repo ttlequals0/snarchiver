@@ -4,6 +4,7 @@ import logging
 import re
 from urllib.parse import urljoin
 
+from snarchiver import download
 from snarchiver.dates import parse_air_date
 from snarchiver.models import Episode
 
@@ -101,3 +102,45 @@ def parse_twit_page(page_html: str, number: int) -> Episode | None:
         notes_url=None,
         source="twit",
     )
+
+
+CURRENT_PAGE = "https://www.grc.com/securitynow.htm"
+ARCHIVE_YEARS = range(2005, 2026)
+
+# GRC drops one episode at four year boundaries; all four are late-December.
+KNOWN_GAPS = {436, 540, 643, 1058}
+
+
+def listing_urls() -> list[str]:
+    return [CURRENT_PAGE] + [
+        f"https://www.grc.com/sn/past/{year}.htm" for year in ARCHIVE_YEARS
+    ]
+
+
+def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> dict[int, Episode]:
+    if twit_lookup is None:
+        twit_lookup = set(KNOWN_GAPS)
+
+    catalog: dict[int, Episode] = {}
+    for url in listing_urls():
+        try:
+            page = fetch(url)
+        except Exception as exc:  # a single bad page must not lose the whole run
+            logger.warning("listing page %s failed: %s", url, exc)
+            continue
+        for episode in parse_listing_page(page):
+            catalog.setdefault(episode.number, episode)
+
+    for number in sorted(twit_lookup - set(catalog)):
+        try:
+            page = fetch(twit_url(number))
+        except Exception as exc:
+            logger.warning("ep %d: TWiT lookup failed: %s", number, exc)
+            continue
+        episode = parse_twit_page(page, number)
+        if episode:
+            logger.info("ep %d: recovered from TWiT", number)
+            catalog[number] = episode
+        else:
+            logger.warning("ep %d: no metadata on GRC or TWiT", number)
+    return catalog
