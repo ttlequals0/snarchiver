@@ -47,6 +47,15 @@ class TestEpisodeStem(unittest.TestCase):
     def test_temp_suffix_is_neutralised(self):
         self.assertFalse(episode_stem(14, "dump.part").endswith(".part"))
 
+    def test_byte_cap_invariant_with_temp_suffix(self):
+        title = "x" * 234 + ".part"
+        stem = episode_stem(1, title)
+        self.assertLessEqual(len((stem + ".json").encode("utf-8")),
+                             MAX_BASENAME_BYTES)
+
+    def test_literal_dash_title_preserved(self):
+        self.assertEqual(episode_stem(99, "-"), "s01e0099 - -")
+
     def test_every_stem_matches_minuspod_pattern(self):
         for number, title in [(1, "A"), (1093, "B"), (9, "   "), (11, "x" * 400)]:
             self.assertRegex(episode_stem(number, title), FILENAME_RE)

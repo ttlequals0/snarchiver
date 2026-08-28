@@ -19,9 +19,12 @@ def _truncate_utf8(text: str, limit: int) -> str:
 
 def _sanitize(title: str) -> str:
     cleaned = re.sub(r"\s+", " ", title).strip()
+    before_hostile = cleaned
     cleaned = _HOSTILE.sub("-", cleaned)
     cleaned = cleaned.strip(". ")
-    if not cleaned or cleaned == "-" * len(cleaned):
+    if not cleaned:
+        return ""
+    if cleaned == "-" * len(cleaned) and "-" not in before_hostile:
         return ""
     return cleaned
 
@@ -29,7 +32,7 @@ def _sanitize(title: str) -> str:
 def episode_stem(number: int, title: str) -> str:
     prefix = f"s01e{number:04d} - "
     cleaned = _sanitize(title) or f"Episode {number}"
-    budget = MAX_BASENAME_BYTES - len(prefix.encode()) - len(LONGEST_EXT.encode())
+    budget = MAX_BASENAME_BYTES - len(prefix.encode()) - len(LONGEST_EXT.encode()) - len("_".encode())
     cleaned = _truncate_utf8(cleaned, budget).strip(". ") or f"Episode {number}"
     if cleaned.lower().endswith(_TEMP_SUFFIXES):
         cleaned += "_"
