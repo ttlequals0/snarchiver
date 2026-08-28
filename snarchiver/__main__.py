@@ -55,6 +55,15 @@ def archive_episode(episode, published_at, out_dir, state, *, artwork, force,
     audio_path = out_dir / f"{stem}.mp3"
 
     if audio_path.exists() and not force:
+        # Audio-only reordering (sidecars written after download) means a
+        # kill between the two can strand an .mp3 with no .json/.txt; that
+        # would otherwise never self-heal once last_complete passes it.
+        txt_path = out_dir / f"{stem}.txt"
+        json_path = out_dir / f"{stem}.json"
+        if not txt_path.exists() or not json_path.exists():
+            write_sidecars(out_dir, stem, episode, published_at)
+            state.mark_complete(episode.number)
+            return "repaired"
         state.mark_complete(episode.number)
         return "skipped"
 

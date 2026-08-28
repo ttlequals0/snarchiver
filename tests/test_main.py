@@ -98,6 +98,21 @@ class TestArchiveEpisode(unittest.TestCase):
         self.assertEqual(result, "downloaded")
         self.assertEqual(len(self.calls), 1)
 
+    def test_skip_repairs_missing_sidecars_without_redownload(self):
+        self.run_one(ep(1))
+        stem = "s01e0001 - Title 1"
+        (self.out / f"{stem}.txt").unlink()
+        (self.out / f"{stem}.json").unlink()
+        self.calls.clear()
+
+        result = self.run_one(ep(1))
+
+        self.assertEqual(self.calls, [])
+        self.assertTrue((self.out / f"{stem}.txt").exists())
+        self.assertTrue((self.out / f"{stem}.json").exists())
+        self.assertEqual(self.state.last_complete, 1)
+        self.assertEqual(result, "repaired")
+
     def test_download_failure_is_pending_not_fatal(self):
         def failing(url, dest, **kwargs):
             raise OSError("network gone")
