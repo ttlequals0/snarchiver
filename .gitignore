@@ -7,3 +7,9 @@ docs/superpowers/
 .superpowers/
 .venv/
 *.egg-info/
+
+# Archived episode output: audio and its sidecars
+*.mp3
+*.txt
+*.json
+!tests/fixtures/*.json
