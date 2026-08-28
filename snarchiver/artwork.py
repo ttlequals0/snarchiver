@@ -24,9 +24,12 @@ def acceptable(width: int, height: int) -> bool:
 
 
 def _page_one_size(pdf_path) -> tuple[int, int] | None:
-    result = subprocess.run(
-        ["pdfimages", "-list", "-f", "1", "-l", "1", str(pdf_path)],
-        capture_output=True, text=True, check=False)
+    try:
+        result = subprocess.run(
+            ["pdfimages", "-list", "-f", "1", "-l", "1", str(pdf_path)],
+            capture_output=True, text=True, check=False, timeout=60)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
     for line in result.stdout.splitlines()[2:]:
         parts = line.split()
         if len(parts) > 4:
@@ -46,11 +49,17 @@ def extract_cover(pdf_path, dest) -> bool:
     dest = pathlib.Path(dest)
     with tempfile.TemporaryDirectory() as work:
         prefix = pathlib.Path(work) / "img"
-        subprocess.run(["pdfimages", "-j", "-f", "1", "-l", "1",
-                        str(pdf_path), str(prefix)],
-                       capture_output=True, check=False)
-        for candidate in sorted(pathlib.Path(work).iterdir()):
-            if candidate.suffix.lower() in _ACCEPTED_SUFFIXES:
-                shutil.move(str(candidate), dest)
-                return True
+        try:
+            subprocess.run(["pdfimages", "-j", "-f", "1", "-l", "1",
+                            str(pdf_path), str(prefix)],
+                           capture_output=True, check=False, timeout=60)
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+        try:
+            for candidate in sorted(pathlib.Path(work).iterdir()):
+                if candidate.suffix.lower() in _ACCEPTED_SUFFIXES:
+                    shutil.move(str(candidate), dest)
+                    return True
+        except OSError:
+            return False
     return False

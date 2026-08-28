@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
+import subprocess
 
-from snarchiver.artwork import MAX_ASPECT, MIN_DIMENSION, acceptable
+from snarchiver.artwork import MAX_ASPECT, MIN_DIMENSION, acceptable, extract_cover
 
 
 class TestAcceptable(unittest.TestCase):
@@ -33,3 +35,24 @@ class TestAcceptable(unittest.TestCase):
 
     def test_zero_dimension_rejected(self):
         self.assertFalse(acceptable(0, 500))
+
+
+class TestExtractCoverRobustness(unittest.TestCase):
+    @patch("snarchiver.artwork.subprocess.run")
+    def test_extract_cover_handles_file_not_found(self, mock_run):
+        mock_run.side_effect = FileNotFoundError("pdfimages not found")
+        result = extract_cover("/tmp/test.pdf", "/tmp/out.jpg")
+        self.assertFalse(result)
+
+    @patch("snarchiver.artwork.subprocess.run")
+    def test_extract_cover_handles_timeout(self, mock_run):
+        mock_run.side_effect = subprocess.TimeoutExpired("pdfimages", timeout=60)
+        result = extract_cover("/tmp/test.pdf", "/tmp/out.jpg")
+        self.assertFalse(result)
+
+    @patch("snarchiver.artwork.subprocess.run")
+    def test_extract_cover_handles_empty_output(self, mock_run):
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = ""
+        result = extract_cover("/tmp/test.pdf", "/tmp/out.jpg")
+        self.assertFalse(result)
