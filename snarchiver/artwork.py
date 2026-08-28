@@ -63,6 +63,9 @@ def extract_cover(pdf_path, dest) -> bool:
                     staged.replace(dest)
                     return True
         except OSError:
-            staged.unlink(missing_ok=True)
+            try:
+                staged.unlink(missing_ok=True)
+            except OSError:
+                pass
             return False
     return False

@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import pathlib
 
-from snarchiver.artwork import MAX_ASPECT, MIN_DIMENSION, acceptable, extract_cover
+from snarchiver.artwork import MAX_ASPECT, MIN_DIMENSION, acceptable, extract_cover, _page_one_size
 
 
 class TestAcceptable(unittest.TestCase):
@@ -40,6 +40,21 @@ class TestAcceptable(unittest.TestCase):
 
 
 class TestExtractCoverRobustness(unittest.TestCase):
+    def test_mock_pdfimages_stdout_format(self):
+        """Verify mock stdout format parses correctly as per pdfimages output."""
+        mock_stdout = (
+            "page   num  type   width height color comp bpc  enc interp  object ID\n"
+            "---------------------------------------------------------------------\n"
+            "   1     0 image     600   400  icc     3   8  jpeg   no         8  0"
+        )
+        with patch("snarchiver.artwork.subprocess.run") as mock_run:
+            result = MagicMock()
+            result.returncode = 0
+            result.stdout = mock_stdout
+            mock_run.return_value = result
+            size = _page_one_size("/tmp/test.pdf")
+            self.assertEqual(size, (600, 400), "Mock stdout should parse to (600, 400)")
+
     @patch("snarchiver.artwork.subprocess.run")
     def test_extract_cover_handles_file_not_found(self, mock_run):
         mock_run.side_effect = FileNotFoundError("pdfimages not found")
@@ -62,7 +77,11 @@ class TestExtractCoverRobustness(unittest.TestCase):
                 result = MagicMock()
                 result.returncode = 0
                 if "-list" in args[0]:
-                    result.stdout = "page   num  type   width height\n1       0    image    600    400"
+                    result.stdout = (
+                        "page   num  type   width height color comp bpc  enc interp  object ID\n"
+                        "---------------------------------------------------------------------\n"
+                        "   1     0 image     600   400  icc     3   8  jpeg   no         8  0"
+                    )
                 else:
                     work_dir = pathlib.Path(args[0][-1]).parent
                     (work_dir / "img-000.jpg").write_text("fake image data")
@@ -76,3 +95,4 @@ class TestExtractCoverRobustness(unittest.TestCase):
                 self.assertFalse(result)
                 self.assertFalse(staged.exists())
                 self.assertFalse(dest.exists())
+                mock_replace.assert_called_once()
