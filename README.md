@@ -58,8 +58,14 @@ compress 21 years into a 1093-day window.
 
 ## Scale
 
-A full backfill is roughly 45-55 GB and, at the default 2-second delay, a day
+A full backfill is roughly **68 GB** and, at the default 2-second delay, a day
 or two of wall clock. It is safely stoppable and resumable.
+
+Note that the listing page's advertised sizes understate this. Those describe
+GRC's own 64 kbps files, but the download URL redirects to a CDN serving a
+higher-bitrate encoding -- episode 1092 is listed as 69 MB and arrives as
+155 MB. Episodes up to roughly #1000 average about 57 MB; everything after
+averages about 155 MB.
 
 ## Feed cover
 
