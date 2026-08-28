@@ -2,6 +2,7 @@ import datetime
 import html
 import logging
 import re
+from dataclasses import dataclass, field
 from urllib.parse import urljoin
 
 from snarchiver import download
@@ -105,28 +106,61 @@ def parse_twit_page(page_html: str, number: int) -> Episode | None:
 
 
 CURRENT_PAGE = "https://www.grc.com/securitynow.htm"
+# Fallback only: used when the current page can't be fetched or yields no
+# archive links. Normal operation discovers pages from CURRENT_PAGE itself.
 ARCHIVE_YEARS = range(2005, 2026)
 
 # GRC drops one episode at four year boundaries; all four are late-December.
 KNOWN_GAPS = {436, 540, 643, 1058}
 
-
-def listing_urls() -> list[str]:
-    return [CURRENT_PAGE] + [
-        f"https://www.grc.com/sn/past/{year}.htm" for year in ARCHIVE_YEARS
-    ]
+_ARCHIVE_LINK_RE = re.compile(r'href="(/sn/past/\d{4}\.htm)"')
 
 
-def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> dict[int, Episode]:
+def discover_archive_urls(page_html: str) -> list[str]:
+    """Archive-year page URLs linked from the current page's sidebar."""
+    paths = sorted(set(_ARCHIVE_LINK_RE.findall(page_html)))
+    return [urljoin(GRC_BASE, path) for path in paths]
+
+
+def listing_urls(*, fetch=None) -> list[str]:
+    archive_urls = []
+    if fetch is not None:
+        try:
+            archive_urls = discover_archive_urls(fetch(CURRENT_PAGE))
+        except Exception as exc:
+            logger.warning("could not discover archive pages: %s", exc)
+    if not archive_urls:
+        archive_urls = [
+            f"https://www.grc.com/sn/past/{year}.htm" for year in ARCHIVE_YEARS
+        ]
+    return [CURRENT_PAGE] + archive_urls
+
+
+@dataclass
+class CatalogResult:
+    episodes: dict[int, Episode]
+    # URLs (listing or TWiT fallback pages) that failed to fetch. Any entry
+    # here means the episode numbering may have holes that are fetch
+    # artifacts rather than genuine upstream gaps.
+    failed_pages: list[str] = field(default_factory=list)
+
+    @property
+    def complete(self) -> bool:
+        return not self.failed_pages
+
+
+def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> CatalogResult:
     if twit_lookup is None:
         twit_lookup = set(KNOWN_GAPS)
 
     catalog: dict[int, Episode] = {}
-    for url in listing_urls():
+    failed_pages: list[str] = []
+    for url in listing_urls(fetch=fetch):
         try:
             page = fetch(url)
         except Exception as exc:  # a single bad page must not lose the whole run
             logger.warning("listing page %s failed: %s", url, exc)
+            failed_pages.append(url)
             continue
         for episode in parse_listing_page(page):
             catalog.setdefault(episode.number, episode)
@@ -136,6 +170,7 @@ def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> dict[int, Epi
             page = fetch(twit_url(number))
         except Exception as exc:
             logger.warning("ep %d: TWiT lookup failed: %s", number, exc)
+            failed_pages.append(twit_url(number))
             continue
         episode = parse_twit_page(page, number)
         if episode:
@@ -143,4 +178,4 @@ def build_catalog(*, fetch=download.get_text, twit_lookup=None) -> dict[int, Epi
             catalog[number] = episode
         else:
             logger.warning("ep %d: no metadata on GRC or TWiT", number)
-    return catalog
+    return CatalogResult(episodes=catalog, failed_pages=failed_pages)

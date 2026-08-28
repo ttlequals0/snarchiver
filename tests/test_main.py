@@ -2,10 +2,13 @@ import datetime
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
-from snarchiver.__main__ import archive_episode, build_parser, select_targets
+from snarchiver.__main__ import (NETWORK_RESULTS, archive_episode, build_parser, main,
+                                 select_targets)
+from snarchiver.catalog import CatalogResult
 from snarchiver.models import Episode
-from snarchiver.state import State
+from snarchiver.state import State, load_state
 
 
 def ep(number, *, audio="https://media.grc.com/sn/sn-001.mp3", desc="Body."):
@@ -122,6 +125,158 @@ class TestArchiveEpisode(unittest.TestCase):
                                  downloader=failing)
         self.assertEqual(result, "failed")
         self.assertIn(1, self.state.pending)
+
+    def test_mp3_appears_only_after_sidecars_are_written(self):
+        # Regression for the partial-import window: a live-scanned directory
+        # must never see a finished .mp3 with no .json.
+        stem = "s01e0001 - Title 1"
+        audio_path = self.out / f"{stem}.mp3"
+        observed = {}
+
+        def downloader(url, dest, **kwargs):
+            dest.write_bytes(b"audio")
+            observed["temp_name"] = dest.name
+            observed["final_mp3_exists_mid_download"] = audio_path.exists()
+
+        archive_episode(ep(1), "2005-08-19T00:00:00Z", self.out, self.state,
+                        artwork=False, force=False, downloader=downloader)
+
+        self.assertFalse(observed["final_mp3_exists_mid_download"])
+        self.assertTrue(observed["temp_name"].endswith((".part", ".tmp")),
+                        observed["temp_name"])
+        self.assertTrue(audio_path.exists())
+        self.assertTrue((self.out / f"{stem}.json").exists())
+        self.assertTrue((self.out / f"{stem}.txt").exists())
+
+    def test_sidecar_write_failure_is_pending_not_fatal(self):
+        with mock.patch("snarchiver.__main__.write_sidecars",
+                        side_effect=OSError("disk full")):
+            result = archive_episode(ep(1), "2005-08-19T00:00:00Z", self.out,
+                                     self.state, artwork=False, force=False,
+                                     downloader=self.downloader)
+        self.assertEqual(result, "failed")
+        self.assertIn(1, self.state.pending)
+
+    def test_naming_failure_is_pending_not_fatal(self):
+        with mock.patch("snarchiver.__main__.episode_stem",
+                        side_effect=ValueError("bad stem")):
+            result = archive_episode(ep(1), "2005-08-19T00:00:00Z", self.out,
+                                     self.state, artwork=False, force=False,
+                                     downloader=self.downloader)
+        self.assertEqual(result, "failed")
+        self.assertIn(1, self.state.pending)
+
+    def test_skip_repair_backfills_artwork_when_enabled(self):
+        self.run_one(ep(1))
+        stem = "s01e0001 - Title 1"
+        self.calls.clear()
+
+        episode = ep(1)
+        episode.notes_url = "https://www.grc.com/sn/sn-0001-notes.pdf"
+
+        def fake_artwork(episode_, out_dir, stem_):
+            (out_dir / f"{stem_}.jpg").write_bytes(b"img")
+
+        with mock.patch("snarchiver.__main__._try_artwork", side_effect=fake_artwork):
+            result = archive_episode(episode, "2005-08-19T00:00:00Z", self.out,
+                                     self.state, artwork=True, force=False,
+                                     downloader=self.downloader)
+
+        self.assertEqual(self.calls, [])  # no re-download
+        self.assertTrue((self.out / f"{stem}.jpg").exists())
+        self.assertEqual(result, "repaired")
+
+
+class TestArchiveEpisodeDelayGating(unittest.TestCase):
+    def test_no_network_results_exclude_delay(self):
+        self.assertNotIn("skipped", NETWORK_RESULTS)
+        self.assertNotIn("repaired", NETWORK_RESULTS)
+        self.assertNotIn("incomplete", NETWORK_RESULTS)
+        self.assertIn("downloaded", NETWORK_RESULTS)
+        self.assertIn("failed", NETWORK_RESULTS)
+
+
+class TestMainCatalogGap(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.out = pathlib.Path(self.tmp.name) / "out"
+        self.state_path = pathlib.Path(self.tmp.name) / "state.json"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake_downloader(self, url, dest, **kwargs):
+        dest.write_bytes(b"audio")
+
+    def test_incomplete_catalog_caps_floor_and_exits_nonzero(self):
+        # Episodes 6-7 are absent because a listing page failed to fetch,
+        # not because the source genuinely skipped them.
+        numbers = list(range(1, 6)) + list(range(8, 11))
+        episodes = {n: ep(n) for n in numbers}
+        result = CatalogResult(episodes=episodes,
+                               failed_pages=["https://www.grc.com/sn/past/2020.htm"])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader):
+            exit_code = main(["--out", str(self.out), "--state", str(self.state_path),
+                              "--delay", "0"])
+
+        self.assertNotEqual(exit_code, 0)
+        state = load_state(self.state_path)
+        self.assertLess(state.last_complete, 6)
+        # Episodes above the gap were still archived to disk.
+        self.assertTrue((self.out / "s01e0010 - Title 10.mp3").exists())
+
+    def test_complete_catalog_with_genuine_gap_advances_normally(self):
+        # No failed pages: episode 6 is simply absent upstream and must not
+        # block the floor.
+        numbers = list(range(1, 6)) + [7]
+        episodes = {n: ep(n) for n in numbers}
+        result = CatalogResult(episodes=episodes, failed_pages=[])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader):
+            exit_code = main(["--out", str(self.out), "--state", str(self.state_path),
+                              "--delay", "0"])
+
+        self.assertEqual(exit_code, 0)
+        state = load_state(self.state_path)
+        self.assertEqual(state.last_complete, 7)
+
+
+class TestMainDelaySkipsNoOpEpisodes(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.out = pathlib.Path(self.tmp.name) / "out"
+        self.state_path = pathlib.Path(self.tmp.name) / "state.json"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake_downloader(self, url, dest, **kwargs):
+        dest.write_bytes(b"audio")
+
+    def test_verification_pass_over_complete_archive_does_not_sleep(self):
+        episodes = {n: ep(n) for n in (1, 2, 3)}
+        result = CatalogResult(episodes=episodes, failed_pages=[])
+
+        with mock.patch("snarchiver.__main__.catalog_mod.build_catalog",
+                        return_value=result), \
+             mock.patch("snarchiver.__main__.download.download_file",
+                        self.fake_downloader), \
+             mock.patch("snarchiver.__main__.time.sleep") as fake_sleep:
+            main(["--out", str(self.out), "--state", str(self.state_path),
+                 "--delay", "5"])
+            fake_sleep.reset_mock()
+            exit_code = main(["--out", str(self.out), "--state", str(self.state_path),
+                              "--delay", "5", "--from", "1"])
+
+        self.assertEqual(exit_code, 0)
+        fake_sleep.assert_not_called()
 
 
 class TestParser(unittest.TestCase):

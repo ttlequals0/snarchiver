@@ -42,8 +42,20 @@ def select_targets(catalog, state, from_, to):
     return [catalog[n] for n in sorted(wanted)]
 
 
+# Results that involved a network round trip; only these justify --delay.
+NETWORK_RESULTS = {"downloaded", "failed"}
+
+
+def _wants_artwork(artwork_enabled, episode):
+    return (artwork_enabled and episode.notes_url
+            and episode.notes_url.lower().endswith(".pdf"))
+
+
 def archive_episode(episode, published_at, out_dir, state, *, artwork, force,
-                    downloader=download.download_file):
+                    downloader=None):
+    # Looked up dynamically (not bound as a default) so tests can patch
+    # download.download_file and have main()'s un-parameterized call see it.
+    downloader = downloader or download.download_file
     if not episode.is_complete:
         logger.warning("ep %d: missing audio or description; skipped",
                        episode.number)
@@ -51,8 +63,15 @@ def archive_episode(episode, published_at, out_dir, state, *, artwork, force,
         return "incomplete"
 
     out_dir = pathlib.Path(out_dir)
-    stem = episode_stem(episode.number, episode.title)
+    try:
+        stem = episode_stem(episode.number, episode.title)
+    except Exception as exc:  # a malformed title must not kill the run
+        logger.error("ep %d: naming failed: %s", episode.number, exc)
+        state.mark_pending(episode.number)
+        return "failed"
+
     audio_path = out_dir / f"{stem}.mp3"
+    temp_audio_path = out_dir / f"{stem}.mp3.part"
 
     if audio_path.exists() and not force:
         # Audio-only reordering (sidecars written after download) means a
@@ -60,27 +79,44 @@ def archive_episode(episode, published_at, out_dir, state, *, artwork, force,
         # would otherwise never self-heal once last_complete passes it.
         txt_path = out_dir / f"{stem}.txt"
         json_path = out_dir / f"{stem}.json"
-        if not txt_path.exists() or not json_path.exists():
-            write_sidecars(out_dir, stem, episode, published_at)
-            state.mark_complete(episode.number)
-            return "repaired"
+        art_path = out_dir / f"{stem}.jpg"
+        repaired = False
+        try:
+            if not txt_path.exists() or not json_path.exists():
+                write_sidecars(out_dir, stem, episode, published_at)
+                repaired = True
+            if _wants_artwork(artwork, episode) and not art_path.exists():
+                _try_artwork(episode, out_dir, stem)
+                repaired = repaired or art_path.exists()
+        except Exception as exc:  # full disk, permissions, etc: retry later
+            logger.error("ep %d: repair failed: %s", episode.number, exc)
+            state.mark_pending(episode.number)
+            return "failed"
         state.mark_complete(episode.number)
-        return "skipped"
+        return "repaired" if repaired else "skipped"
 
-    # Download before writing sidecars: this writes into MinusPod's live
-    # import directory, and a failed download must leave no .txt/.json
-    # orphans for MinusPod to reject on its next scan.
+    # Download to a name MinusPod ignores (.part), then write sidecars,
+    # then rename the audio into place last. A kill at any point leaves
+    # either nothing, or an ignored temp file plus sidecars, never a
+    # finished .mp3 with no .json, which is what makes MinusPod synthesize
+    # a wrong date.
     try:
-        downloader(episode.audio_url, audio_path)
+        downloader(episode.audio_url, temp_audio_path)
     except Exception as exc:  # one bad episode must not end the run
         logger.warning("ep %d: download failed: %s", episode.number, exc)
+        temp_audio_path.unlink(missing_ok=True)
         state.mark_pending(episode.number)
         return "failed"
 
-    write_sidecars(out_dir, stem, episode, published_at)
-
-    if artwork and episode.notes_url and episode.notes_url.lower().endswith(".pdf"):
-        _try_artwork(episode, out_dir, stem)
+    try:
+        write_sidecars(out_dir, stem, episode, published_at)
+        if _wants_artwork(artwork, episode):
+            _try_artwork(episode, out_dir, stem)
+        temp_audio_path.replace(audio_path)
+    except Exception as exc:  # full disk, permissions, etc: retry later
+        logger.error("ep %d: archiving failed: %s", episode.number, exc)
+        state.mark_pending(episode.number)
+        return "failed"
 
     state.mark_complete(episode.number)
     return "downloaded"
@@ -99,6 +135,22 @@ def _try_artwork(episode, out_dir, stem):
             logger.info("ep %d: no artwork (%s)", episode.number, exc)
 
 
+def _gap_floor(catalog) -> int | None:
+    """Highest episode number safe to treat as a complete floor.
+
+    None if the catalog has no hole below its highest number: every number
+    from 1 up to the max is present, so any absence above that is a
+    genuine upstream skip, not a fetch artifact.
+    """
+    if not catalog:
+        return None
+    highest = max(catalog)
+    for number in range(1, highest + 1):
+        if number not in catalog:
+            return number - 1
+    return None
+
+
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
@@ -114,13 +166,27 @@ def main(argv=None) -> int:
     state = load_state(state_path)
 
     try:
-        catalog = catalog_mod.build_catalog()
+        catalog_result = catalog_mod.build_catalog()
     except Exception as exc:
         logger.error("could not build catalog: %s", exc)
         return 1
+    catalog = catalog_result.episodes
     if not catalog:
         logger.error("no episodes found; is grc.com reachable?")
         return 1
+
+    # A page-fetch failure can hide episode numbers that are really upstream.
+    # Never let last_complete advance past such a hole, or those episodes
+    # become unreachable once a later run's floor sits above them.
+    exit_code = 0
+    floor_cap = None
+    if not catalog_result.complete:
+        floor_cap = _gap_floor(catalog)
+        gap_msg = (f"; catalog has a hole starting at episode {floor_cap + 1}"
+                  if floor_cap is not None else "; no hole below the current max")
+        logger.error("catalog incomplete: failed pages %s%s",
+                     catalog_result.failed_pages, gap_msg)
+        exit_code = 1
 
     published = assign_publish_dates(catalog.values())
     targets = select_targets(catalog, state, args.from_, args.to)
@@ -129,17 +195,27 @@ def main(argv=None) -> int:
     if args.dry_run:
         for episode in targets:
             logger.info("would archive ep %d: %s", episode.number, episode.title)
-        return 0
+        return exit_code
 
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Never cap below where the state already stood entering this run: the
+    # cap stops this run from advancing over a hole, it does not roll back
+    # progress a prior, fully-successful run already recorded.
+    cap_floor = max(floor_cap, state.last_complete) if floor_cap is not None else None
     for index, episode in enumerate(targets):
         result = archive_episode(episode, published[episode.number], out_dir,
                                  state, artwork=use_artwork, force=args.force)
+        if cap_floor is not None and state.last_complete > cap_floor:
+            state.last_complete = cap_floor
         logger.info("ep %d: %s", episode.number, result)
-        save_state(state_path, state)
-        if args.delay and index + 1 < len(targets):
+        try:
+            save_state(state_path, state)
+        except Exception as exc:  # full disk, permissions, etc: keep archiving
+            logger.error("could not save state: %s", exc)
+            exit_code = 1
+        if args.delay and result in NETWORK_RESULTS and index + 1 < len(targets):
             time.sleep(args.delay)
-    return 0
+    return exit_code
 
 
 if __name__ == "__main__":

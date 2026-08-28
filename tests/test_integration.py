@@ -60,8 +60,12 @@ def fetch(url, **kwargs):
 class TestPipeline(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.catalog = build_catalog(fetch=fetch, twit_lookup={436})
+        cls.result = build_catalog(fetch=fetch, twit_lookup={436})
+        cls.catalog = cls.result.episodes
         cls.published = assign_publish_dates(cls.catalog.values())
+
+    def test_full_fixture_set_is_a_complete_fetch(self):
+        self.assertTrue(self.result.complete)
 
     def test_catalog_spans_fixtures(self):
         self.assertIn(1, self.catalog)

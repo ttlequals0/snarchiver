@@ -5,7 +5,12 @@ import re
 FILENAME_RE = re.compile(r"^(s\d{2,3}e\d{2,4})(?: - (.+))?$", re.IGNORECASE)
 
 MAX_BASENAME_BYTES = 255
-LONGEST_EXT = ".json"
+# Budget against the longest suffix that can exist transiently on disk
+# (sidecar .tmp files, in-flight audio/artwork .part files), not just the
+# final ".json": a maximal stem must not overflow once one of these is
+# appended, or the write/rename fails and strands the episode.
+_TRANSIENT_SUFFIXES = (".json", ".json.tmp", ".txt.tmp", ".mp3.part", ".jpg.part")
+LONGEST_EXT = max(_TRANSIENT_SUFFIXES, key=lambda s: len(s.encode()))
 _TEMP_SUFFIXES = (".part", ".tmp")
 _HOSTILE = re.compile(r'[/\\:*?"<>|\x00-\x1f]')
 

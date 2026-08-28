@@ -27,6 +27,10 @@ Later runs need no arguments; the state file resumes where the last one stopped:
 | `--force` | Re-download episodes already on disk |
 | `-v`, `--verbose` | Debug-level logging |
 
+Requires a Python 3.11+ interpreter with a working SSL trust store. A broken
+store surfaces as `CERTIFICATE_VERIFY_FAILED` on every fetch; point `python3`
+at an interpreter with valid certificates (e.g. Homebrew's) if you see it.
+
 ## Output
 
 Four files per episode, sharing a byte-identical stem:

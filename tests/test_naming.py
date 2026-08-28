@@ -53,6 +53,14 @@ class TestEpisodeStem(unittest.TestCase):
         self.assertLessEqual(len((stem + ".json").encode("utf-8")),
                              MAX_BASENAME_BYTES)
 
+    def test_byte_cap_invariant_with_longest_transient_suffix(self):
+        # .json.tmp / .mp3.part / .jpg.part outlive .json alone on disk;
+        # a maximal stem must still fit under the cap with any of them.
+        stem = episode_stem(1, "x" * 400)
+        for suffix in (".json.tmp", ".mp3.part", ".jpg.part"):
+            self.assertLessEqual(len((stem + suffix).encode("utf-8")),
+                                 MAX_BASENAME_BYTES, suffix)
+
     def test_literal_dash_title_preserved(self):
         self.assertEqual(episode_stem(99, "-"), "s01e0099 - -")
 
