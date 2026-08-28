@@ -1,3 +1,4 @@
+import datetime
 import html
 import logging
 import re
@@ -54,3 +55,49 @@ def parse_listing_page(page_html: str) -> list[Episode]:
             source="grc",
         ))
     return episodes
+
+
+TWIT_BASE = "https://twit.tv/shows/security-now/episodes/"
+MEDIA_BASE = "https://media.grc.com/sn/"
+
+_OG_TITLE_RE = re.compile(r'<meta property="og:title" content="([^"]*)"')
+_OG_DESC_RE = re.compile(r'<meta property="og:description" content="([^"]*)"')
+_AIR_DATE_RE = re.compile(r'air-date">([^<]+)<')
+_ORDINAL_RE = re.compile(r"(\d+)(?:st|nd|rd|th)")
+
+
+def twit_url(number: int) -> str:
+    return f"{TWIT_BASE}{number}"
+
+
+def grc_audio_url(number: int) -> str:
+    return f"{MEDIA_BASE}sn-{number:03d}.mp3"
+
+
+def parse_twit_page(page_html: str, number: int) -> Episode | None:
+    title_match = _OG_TITLE_RE.search(page_html)
+    date_match = _AIR_DATE_RE.search(page_html)
+    if not title_match or not date_match:
+        return None
+
+    title = html.unescape(title_match.group(1))
+    title = re.sub(r"\s*\|\s*TWiT\.TV\s*$", "", title)
+    title = re.sub(r"^\s*Security Now:\s*", "", title).strip()
+
+    raw_date = _ORDINAL_RE.sub(r"\1", date_match.group(1)).strip()
+    try:
+        air_date = datetime.datetime.strptime(raw_date, "%b %d %Y").date()
+    except ValueError:
+        logger.warning("ep %d: unparseable TWiT date %r", number, date_match.group(1))
+        return None
+
+    desc_match = _OG_DESC_RE.search(page_html)
+    return Episode(
+        number=number,
+        title=title,
+        description=html.unescape(desc_match.group(1)).strip() if desc_match else "",
+        air_date=air_date,
+        audio_url=grc_audio_url(number),
+        notes_url=None,
+        source="twit",
+    )
