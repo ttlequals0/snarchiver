@@ -84,7 +84,7 @@ class TestArchiveEpisode(unittest.TestCase):
 
     def test_writes_all_three_files(self):
         self.run_one(ep(1))
-        stem = "s01e0001 - Title 1"
+        stem = "s01e0001 - SN0001: Title 1"
         for ext in (".mp3", ".txt", ".json"):
             self.assertTrue((self.out / f"{stem}{ext}").exists(), ext)
 
@@ -118,7 +118,7 @@ class TestArchiveEpisode(unittest.TestCase):
 
     def test_skip_repairs_missing_sidecars_without_redownload(self):
         self.run_one(ep(1))
-        stem = "s01e0001 - Title 1"
+        stem = "s01e0001 - SN0001: Title 1"
         (self.out / f"{stem}.txt").unlink()
         (self.out / f"{stem}.json").unlink()
         self.calls.clear()
@@ -144,7 +144,7 @@ class TestArchiveEpisode(unittest.TestCase):
     def test_mp3_appears_only_after_sidecars_are_written(self):
         # Regression for the partial-import window: a live-scanned directory
         # must never see a finished .mp3 with no .json.
-        stem = "s01e0001 - Title 1"
+        stem = "s01e0001 - SN0001: Title 1"
         audio_path = self.out / f"{stem}.mp3"
         observed = {}
 
@@ -183,7 +183,7 @@ class TestArchiveEpisode(unittest.TestCase):
 
     def test_skip_repair_backfills_artwork_when_enabled(self):
         self.run_one(ep(1))
-        stem = "s01e0001 - Title 1"
+        stem = "s01e0001 - SN0001: Title 1"
         self.calls.clear()
 
         episode = ep(1)
@@ -242,7 +242,7 @@ class TestMainCatalogGap(unittest.TestCase):
         state = load_state(self.state_path)
         self.assertLess(state.last_complete, 6)
         # Episodes above the gap were still archived to disk.
-        self.assertTrue((self.out / "s01e0010 - Title 10.mp3").exists())
+        self.assertTrue((self.out / "s01e0010 - SN0010: Title 10.mp3").exists())
 
     def test_complete_catalog_with_genuine_gap_advances_normally(self):
         # No failed pages: episode 6 is simply absent upstream and must not
@@ -318,7 +318,7 @@ class TestMainSaveStateFailure(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         # All three episodes were still archived despite state never saving.
         for n in (1, 2, 3):
-            self.assertTrue((self.out / f"s01e{n:04d} - Title {n}.mp3").exists())
+            self.assertTrue((self.out / f"s01e{n:04d} - SN{n:04d}: Title {n}.mp3").exists())
         self.assertTrue(any("could not save state" in line for line in logs.output))
 
 

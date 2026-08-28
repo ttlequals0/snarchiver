@@ -1,6 +1,8 @@
 import json
 import pathlib
 
+from snarchiver.naming import sn_title
+
 SIDECAR_KEYS = {"title", "description", "published_at", "season", "episode"}
 SEASON = 1
 
@@ -17,7 +19,7 @@ def write_sidecars(out_dir, stem: str, episode, published_at: str) -> None:
     body = description_text(episode)
 
     payload = {
-        "title": episode.title,
+        "title": sn_title(episode.number, episode.title),
         "description": body,
         "published_at": published_at,
         "season": SEASON,

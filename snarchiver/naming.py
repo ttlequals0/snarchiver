@@ -34,14 +34,22 @@ def _sanitize(title: str) -> str:
     return cleaned
 
 
+def sn_title(number: int, title: str) -> str:
+    """Build the 'SN####: <title>' display title shared by the filename stem
+    and the sidecar. Single source of the format so the two can't drift."""
+    return f"SN{number:04d}: {title}"
+
+
 def episode_stem(number: int, title: str) -> str:
-    prefix = f"s01e{number:04d} - "
+    season_prefix = f"s01e{number:04d} - "
+    sn_prefix_bytes = len(sn_title(number, "").encode())
     cleaned = _sanitize(title) or f"Episode {number}"
-    budget = MAX_BASENAME_BYTES - len(prefix.encode()) - len(LONGEST_EXT.encode()) - len("_".encode())
+    budget = (MAX_BASENAME_BYTES - len(season_prefix.encode()) - sn_prefix_bytes
+             - len(LONGEST_EXT.encode()) - len("_".encode()))
     cleaned = _truncate_utf8(cleaned, budget).strip(". ") or f"Episode {number}"
     if cleaned.lower().endswith(_TEMP_SUFFIXES):
         cleaned += "_"
-    stem = prefix + cleaned
+    stem = season_prefix + sn_title(number, cleaned)
     if not FILENAME_RE.match(stem):
         raise ValueError(f"stem rejected by MinusPod pattern: {stem!r}")
     return stem

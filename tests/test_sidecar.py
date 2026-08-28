@@ -101,7 +101,16 @@ class TestWriteSidecars(unittest.TestCase):
                        "2005-08-25T00:00:00Z")
         data = json.loads((self.out / "s01e0002 - Café.json")
                           .read_text(encoding="utf-8"))
-        self.assertEqual(data["title"], "Café")
+        self.assertEqual(data["title"], "SN0002: Café")
+
+    def test_sidecar_title_carries_sn_prefix_from_raw_title(self):
+        # Built from the RAW title: both colons survive, unlike the filename.
+        stem = "s01e0019 - SN0019: VPNs Three- Hamachi, iPig, and OpenVPN"
+        write_sidecars(self.out, stem, make(number=19,
+                       title="VPNs Three: Hamachi, iPig, and OpenVPN"),
+                       "2006-11-15T00:00:00Z")
+        data = json.loads((self.out / f"{stem}.json").read_text(encoding="utf-8"))
+        self.assertEqual(data["title"], "SN0019: VPNs Three: Hamachi, iPig, and OpenVPN")
 
     def test_no_tmp_residue_after_successful_write(self):
         tmp_files = [f for f in self.out.iterdir() if str(f).endswith('.tmp')]
