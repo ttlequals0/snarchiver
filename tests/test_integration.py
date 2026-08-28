@@ -60,7 +60,7 @@ def fetch(url, **kwargs):
 class TestPipeline(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.result = build_catalog(fetch=fetch, twit_lookup={436})
+        cls.result = build_catalog(fetch=fetch, twit_lookup={436}, probe=lambda url: False)
         cls.catalog = cls.result.episodes
         cls.published = assign_publish_dates(cls.catalog.values())
 

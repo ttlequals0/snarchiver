@@ -41,6 +41,17 @@ def get_text(url, *, retries=3, timeout=30, backoff=1.0, opener=_default_opener)
     return _with_retries(action, retries=retries, backoff=backoff, what=f"GET {url}")
 
 
+def head_exists(url, *, timeout=30, opener=_default_opener) -> bool:
+    """HEAD probe following redirects; only a 200 counts as existing."""
+    request = urllib.request.Request(url, method="HEAD",
+                                     headers={"User-Agent": USER_AGENT})
+    try:
+        with opener(request, timeout) as response:
+            return response.status == 200
+    except Exception:
+        return False
+
+
 def download_file(url, dest: pathlib.Path, *, retries=3, timeout=300,
                   backoff=1.0, opener=_default_opener) -> int:
     part = dest.with_name(dest.name + ".part")
