@@ -13,3 +13,4 @@ docs/superpowers/
 *.txt
 *.json
 !tests/fixtures/*.json
+CLAUDE.md
